@@ -1,0 +1,19 @@
+[project]
+name = "traffic-gnn"
+version = "0.1.0"
+description = "Traffic speed forecasting on METR-LA: per-segment ML baselines vs graph neural networks, plus a simulated signal-control experiment"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+filterwarnings = ["ignore::DeprecationWarning", "ignore::FutureWarning"]
+
+[tool.ruff]
+line-length = 135
+target-version = "py311"
+extend-exclude = ["ref", "notebooks"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["B905"]  # zip() deliberately truncates to the shorter list (e.g. a fixed colour list)

@@ -1,0 +1,24 @@
+# Single source of truth for the data pipeline (read from Phase 2 onwards).
+dataset: metr-la
+raw:
+  speed: data/raw/metr-la.h5
+  adjacency: data/raw/adj_mx.pkl
+  locations: data/raw/graph_sensor_locations.csv
+  distances: data/raw/distances_la_2012.csv
+split:            # chronological, never random (DCRNN protocol)
+  train: 0.7
+  val: 0.1
+  test: 0.2
+window:
+  history: 12     # 12 x 5 min = 60 min of input for EVERY model (equal-history requirement)
+  horizon: 12     # predict 5 ... 60 min ahead
+  report_horizons: [3, 6, 12]   # 15, 30, 60 min
+masking:
+  missing_value: 0.0            # 0 mph = sensor down, never a real reading
+adjacency:
+  directed: true
+  kernel_threshold: 0.1         # W_ij = exp(-(d_ij/sigma)^2), zeroed below 0.1
+peaks:            # brief's definition, on the timestamp being predicted, weekdays only
+  am: ["07:00", "09:59"]
+  pm: ["16:00", "19:59"]
+seed: 42
