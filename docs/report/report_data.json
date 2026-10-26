@@ -2513,9 +2513,21 @@
    "author": "Manas Saxena",
    "date": "2026-10-26",
    "subject": "Integrate the Streamlit dashboard and fix the peak-ratio range"
+  },
+  {
+   "hash": "33c90cc",
+   "author": "Manas Saxena",
+   "date": "2026-10-26",
+   "subject": "Add data-driven report generator"
+  },
+  {
+   "hash": "74cf9f1",
+   "author": "Manas Saxena",
+   "date": "2026-10-26",
+   "subject": "Add full project report (Word and PDF)"
   }
  ],
- "head": "101ec90",
+ "head": "74cf9f1",
  "tests": {
   "test_baselines.py": 12,
   "test_data.py": 9,

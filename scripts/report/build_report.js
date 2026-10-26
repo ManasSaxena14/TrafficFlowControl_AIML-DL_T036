@@ -115,6 +115,7 @@ const cover = [
   para([b("Contributors: "), "Harsh Raj (project setup, data loading and exploratory analysis, Phases 0 and 1); Sumit (GitHub: sumit316-glitch; interactive Streamlit dashboard)"]),
   para([b("Date: "), "26 October 2026"]),
   para([b("Repository: "), "https://github.com/ManasSaxena14/TrafficFlowControl_AIML-DL_T036"]),
+  para([b("Live dashboard: "), "https://trafficflowamldl.streamlit.app"]),
   para([b("Report generated from commit: "), `${D.head} (${D.commits.length} commits at that point)`]),
   spacer(300),
   callout([
@@ -327,7 +328,7 @@ add(callout([[i_("Independent segment models forecast each sensor from its own h
 
 // ---------------- 7 engineering
 add(h1("7  Engineering and reproducibility"));
-add(para(`The repository (https://github.com/ManasSaxena14/TrafficFlowControl_AIML-DL_T036) holds ${num(D.loc.src)} lines of source in src/, ${num(D.loc.tests)} lines of tests, and a ${num(D.loc["app.py"])}-line dashboard. Large intermediate data (data/processed, about 2.5 GB per protocol) is git-ignored and rebuilt by the make targets.`));
+add(para(`The repository (https://github.com/ManasSaxena14/TrafficFlowControl_AIML-DL_T036) holds ${num(D.loc.src)} lines of source in src/, ${num(D.loc.tests)} lines of tests, and a ${num(D.loc["app.py"])}-line Streamlit dashboard, deployed at https://trafficflowamldl.streamlit.app. Large intermediate data (data/processed, about 2.5 GB per protocol) is git-ignored and rebuilt by the make targets.`));
 add(tcap("Table 14. Repository map"));
 add(table(["Path", "Contents"], [
   ["src/data", "Loading (HDF5, graph, locations); leak-free preprocessing; split and scaler readers"],
@@ -340,7 +341,7 @@ add(table(["Path", "Contents"], [
   ["tests", "Automated tests (see below)"],
   ["results, reports/figures", "All result tables and the figures used in this report"],
   ["docs", "Project guide, phase reports 1 to 4, this report, the slide deck"],
-  ["app.py", "Interactive Streamlit dashboard over the saved results"],
+  ["app.py", "Interactive Streamlit dashboard over the saved results (live at https://trafficflowamldl.streamlit.app)"],
 ], [2400, 6626], { aligns: [AlignmentType.LEFT, AlignmentType.LEFT], size: 18 }));
 add(spacer(60));
 add(tcap("Table 15. Automated tests"));
