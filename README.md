@@ -44,7 +44,8 @@ The gap (Phase 4): XGBoost's error is 5–6× higher in the 30 min after a conge
 *Graph models and the full comparison (peak vs off-peak, significance) follow in Phases 5–6.*
 
 ## Dashboard and slides
-- `make dashboard` opens an interactive Streamlit dashboard over the saved results (`app.py`, contributed by Sumit).
+- **Live dashboard: https://trafficflowamldl.streamlit.app** (interactive Streamlit app over the saved results; source in `app.py`, contributed by Sumit).
+- `make dashboard` runs the same dashboard locally.
 - [Full project report](docs/report/AML_Project_Report.pdf) (also as [Word](docs/report/AML_Project_Report.docx)): 19 pages covering data, method, all results and limitations; every number is generated from the files in `results/` by `scripts/report/` (see its Appendix C).
 - [Project slides](docs/presentation/AML_Traffic_Flow_Forecasting.pptx): 11-slide summary of the AML part (data, leak-free pipeline, baselines, all scores, the gap).
 
