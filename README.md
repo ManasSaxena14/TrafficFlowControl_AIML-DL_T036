@@ -16,7 +16,7 @@ Speed forecasting 5–60 min ahead on METR-LA (207 Los Angeles freeway sensors),
 | 0 | Setup, repo, pre-reads | ✅ |
 | 1 | Data + EDA ([report](docs/phase_reports/PHASE_1_REPORT.md)) | ✅ |
 | 2 | Leak-free preprocessing ([report](docs/phase_reports/PHASE_2_REPORT.md)) | ✅ |
-| 3 | ML baselines ([report](docs/phase_reports/PHASE_3_REPORT.md)) | 🟡 rungs 0–4 done, LSTM training |
+| 3 | ML baselines ([report](docs/phase_reports/PHASE_3_REPORT.md)) | ✅ |
 | 4 | Identify the gap | 🟡 3 of 4 pieces of evidence done |
 | 5 | Graph models (STGAT, DCRNN) + ablations | ☐ |
 | 6 | Fair comparison, horizon & peak metrics, significance | ☐ |

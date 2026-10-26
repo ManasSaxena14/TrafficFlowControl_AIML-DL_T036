@@ -1,6 +1,6 @@
 # Phase 3 report: ML baselines (strong, honest, per-segment)
 
-**Status:** 🟡 rungs 0–4 complete, rung 5 (LSTM, no graph) training · **Table:** [`results/baselines.csv`](../../results/baselines.csv) · **Per-horizon results:** `results/baselines/<model>.csv` · **Code:** `src/features/build.py`, `src/models/{simple,trees,lstm}.py`, `src/train/baselines.py`, `src/eval/evaluate.py` · **Tests:** `tests/test_baselines.py`
+**Status:** ✅ complete · **Table:** [`results/baselines.csv`](../../results/baselines.csv) · **Per-horizon results:** `results/baselines/<model>.csv` · **Code:** `src/features/build.py`, `src/models/{simple,trees,lstm}.py`, `src/train/baselines.py`, `src/eval/evaluate.py` · **Tests:** `tests/test_baselines.py`
 
 Re-run with `make features baselines`.
 
@@ -8,7 +8,7 @@ Re-run with `make features baselines`.
 - [x] Feature table: lags, rolling stats, changes, missing flags, time, segment (46 columns)
 - [x] Rung 0 persistence · rung 1 historical average · rung 2 Ridge per sensor
 - [x] Rung 3 **XGBoost per segment** (brief) · rung 4 **multi-output Random Forest** (brief)
-- [ ] Rung 5 LSTM with no graph, weights shared across sensors (training)
+- [x] Rung 5 LSTM with no graph, weights shared across sensors
 - [x] `results/baselines.csv`: MAE / RMSE / MAPE at 15 / 30 / 60 min
 - [x] XGBoost feature-importance plot
 - [x] Paragraph: strongest baseline and where it degrades
@@ -40,11 +40,11 @@ Re-run with `make features baselines`.
 | 2 | Ridge per sensor | 3.31 | 4.08 | 5.17 | 8.67 | 15.5% |
 | 3 | **XGBoost per horizon** | **3.02** | **3.51** | **4.01** | **7.28** | **12.0%** |
 | 4 | Multi-output Random Forest | 3.08 | 3.68 | 4.45 | 7.85 | 13.5% |
-| 5 | LSTM (no graph) | *training* | | | | |
+| 5 | LSTM (no graph) | **2.97** | 3.55 | 4.35 | 8.84 | 13.5% |
 
 ![error by horizon](../../reports/figures/fig07_baseline_error_by_horizon.png)
 
-**Strongest baseline: XGBoost.** It beats persistence by 14% at 15 min and 25% at 60 min, and every other rung at every horizon. Its error still grows steadily with horizon (3.02 → 4.01 mph MAE, 5.47 → 7.28 RMSE): beyond ~15 min the information it needs is no longer in the sensor's own history. That is the gap Phase 4 measures. Historical average is flat (it ignores the present); at 60 min it beats persistence and Ridge but not the tree models.
+**Strongest baseline: XGBoost.** It beats persistence by 14% at 15 min and 25% at 60 min, has the lowest average MAE (3.44) and the lowest RMSE and MAPE at every horizon, and is only edged out by the LSTM at 15 min (2.97 vs 3.02 MAE). Its error still grows steadily with horizon (3.02 → 4.01 mph MAE, 5.47 → 7.28 RMSE): beyond ~15 min the information it needs is no longer in the sensor's own history. That is the gap Phase 4 measures. Historical average is flat (it ignores the present); at 60 min it beats persistence and Ridge but not the tree models.
 
 ## XGBoost: design and tuning
 - One model per horizon (12), all 207 sensors stacked, sensor id as a feature. Still **independent**: a row never contains a neighbour's speed.
@@ -60,6 +60,11 @@ Share of total gain: `speed_t` 54% and `mean_3` 30% at 15 min; at 60 min `speed_
 
 ## Ridge per sensor
 207 × 12 linear models on each sensor's own time-varying features; α picked on val (1,000; differences across α were < 0.01 mph). Good at 15 min, worst MAPE at 60 min: a linear model extrapolates the recent trend too far.
+
+## LSTM (no graph)
+Two LSTM layers (64 units), one set of weights shared by all 207 sensors; each sensor's own 12 × 7 input window in (speed, mask, time features), 12 horizons out. Masked MAE in mph, Adam (lr 2e-3, halved on plateau), gradient clipping 5, early stopping on val (patience 3, max 12 epochs). Best val MAE 3.208 (pooled over 12 horizons) after 12 epochs, on Apple MPS.
+
+It is the best model at 15 min (2.97 vs XGBoost 3.02) but falls behind XGBoost at 30 and 60 min (3.55 / 4.35 vs 3.51 / 4.01), and its RMSE is higher at every horizon. Deep learning alone does not fix long-horizon error: the LSTM has the same information problem as XGBoost (one sensor's own history). This is the reference the Phase 5 GNN must beat; if it does, the gain comes from the graph.
 
 ## Engineering note
 XGBoost (Homebrew `libomp`) and PyTorch (bundled `libomp`) crash when loaded in one process on macOS. The runner imports XGBoost only inside the tree-model steps, so the LSTM never loads it.
