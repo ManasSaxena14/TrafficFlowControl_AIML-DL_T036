@@ -44,7 +44,7 @@ Re-run with `make features baselines`.
 
 ![error by horizon](../../reports/figures/fig07_baseline_error_by_horizon.png)
 
-**Strongest baseline: XGBoost.** It beats persistence by 14% at 15 min and 25% at 60 min, has the lowest average MAE (3.44) and the lowest RMSE and MAPE at every horizon, and is only edged out by the LSTM at 15 min (2.97 vs 3.02 MAE). Its error still grows steadily with horizon (3.02 → 4.01 mph MAE, 5.47 → 7.28 RMSE): beyond ~15 min the information it needs is no longer in the sensor's own history. That is the gap Phase 4 measures. Historical average is flat (it ignores the present); at 60 min it beats persistence and Ridge but not the tree models.
+**Strongest baseline: XGBoost.** It beats persistence by 14% at 15 min and 25% at 60 min, has the lowest average MAE (3.44), the lowest RMSE at every horizon and the lowest MAPE at 30 and 60 min; only the LSTM edges it at 15 min (MAE 2.97 vs 3.02, MAPE 8.0% vs 8.2%). Its error still grows steadily with horizon (3.02 → 4.01 mph MAE, 5.47 → 7.28 RMSE): beyond ~15 min the information it needs is no longer in the sensor's own history. That is the gap Phase 4 measures. Historical average is flat (it ignores the present); at 60 min it beats persistence and Ridge but not the tree models.
 
 ## XGBoost: design and tuning
 - One model per horizon (12), all 207 sensors stacked, sensor id as a feature. Still **independent**: a row never contains a neighbour's speed.
