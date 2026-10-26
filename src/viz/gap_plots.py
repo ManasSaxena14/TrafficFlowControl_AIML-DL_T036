@@ -63,10 +63,10 @@ def plot_neighbour_test(table: pd.DataFrame, split: str = "test") -> plt.Figure:
         if k:
             for b, mm in zip(bars, mins):
                 g = t.loc[m, f"MAE_gain_{mm}min_%"]
-                ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 0.03, f"{g:+.1f}%", ha="center", fontsize=7, color=S.INK_2)
+                ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 0.03, f"{-g:+.1f}%", ha="center", fontsize=7, color=S.INK_2)
     ax.set_xticks(x, [f"{m} min" for m in mins])
     ax.set_ylabel("MAE (mph)")
-    ax.set_title("Gap 3 · Giving XGBoost its neighbours' speeds lowers error, most at longer horizons")
+    ax.set_title("Gap 3 · Neighbours' speeds lower XGBoost's error at every horizon (labels: MAE change)")
     ax.legend(fontsize=8, ncol=2)
     ax.grid(axis="x", visible=False)
     return fig
