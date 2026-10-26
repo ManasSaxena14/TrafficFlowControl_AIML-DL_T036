@@ -25,7 +25,7 @@ Onset = the Phase 1 definition (speed drops > 20 mph within 15 min from ≥ 50 m
 
 | Horizon | XGB MAE after onset | XGB MAE other times | Ratio |
 |---|---|---|---|
-| 15 min | 16.20 | 2.72 | 6.0× |
+| 15 min | 16.20 | 2.72 | 5.9× |
 | 30 min | 20.12 | 3.14 | 6.4× |
 | 60 min | 19.09 | 3.67 | 5.2× |
 

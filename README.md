@@ -45,6 +45,7 @@ The gap (Phase 4): XGBoost's error is 5–6× higher in the 30 min after a conge
 
 ## Dashboard and slides
 - `make dashboard` opens an interactive Streamlit dashboard over the saved results (`app.py`, contributed by Sumit).
+- [Full project report](docs/report/AML_Project_Report.pdf) (also as [Word](docs/report/AML_Project_Report.docx)): 19 pages covering data, method, all results and limitations; every number is generated from the files in `results/` by `scripts/report/` (see its Appendix C).
 - [Project slides](docs/presentation/AML_Traffic_Flow_Forecasting.pptx): 11-slide summary of the AML part (data, leak-free pipeline, baselines, all scores, the gap).
 
 ## Reproduce
