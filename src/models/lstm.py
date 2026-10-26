@@ -47,7 +47,7 @@ def predict(model: SharedLSTM, X: np.ndarray, scaler: dict, device, windows_per_
     return np.concatenate(out).astype(np.float32)
 
 
-def fit(Xtr, Ytr, Mtr, Xva, Yva, Mva, scaler: dict, epochs: int = 20, patience: int = 3, windows_per_batch: int = 32,
+def fit(Xtr, Ytr, Mtr, Xva, Yva, Mva, scaler: dict, epochs: int = 12, patience: int = 3, windows_per_batch: int = 32,
         lr: float = 2e-3, seed: int = 42, log=print) -> tuple[SharedLSTM, list[dict]]:
     """Masked-MAE training in mph; early stopping on validation MAE. Windows are shuffled only inside the train block."""
     torch.manual_seed(seed)
