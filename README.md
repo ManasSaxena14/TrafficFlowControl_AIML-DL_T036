@@ -17,8 +17,8 @@ Speed forecasting 5–60 min ahead on METR-LA (207 Los Angeles freeway sensors),
 | 1 | Data + EDA ([report](docs/phase_reports/PHASE_1_REPORT.md)) | ✅ |
 | 2 | Leak-free preprocessing ([report](docs/phase_reports/PHASE_2_REPORT.md)) | ✅ |
 | 3 | ML baselines ([report](docs/phase_reports/PHASE_3_REPORT.md)) | ✅ |
-| 4 | Identify the gap | 🟡 3 of 4 pieces of evidence done |
-| 5 | Graph models (STGAT, DCRNN) + ablations | ☐ |
+| 4 | Identify the gap ([report](docs/phase_reports/PHASE_4_REPORT.md)) | ✅ |
+| 5 | Graph models (STGAT, DCRNN) + ablations | ⏭ next |
 | 6 | Fair comparison, horizon & peak metrics, significance | ☐ |
 | 7 | Congestion maps | ☐ |
 | 8 | Simulated signal control (SUMO, optional) | ☐ |
@@ -27,7 +27,21 @@ Speed forecasting 5–60 min ahead on METR-LA (207 Los Angeles freeway sensors),
 The full plan, with every requirement of the brief mapped to a phase, is in **[docs/PROJECT_GUIDE.md](docs/PROJECT_GUIDE.md)**.
 
 ## Results
-*Filled in Phase 6.* MAE / RMSE / MAPE at 15 / 30 / 60 min, peak vs off-peak, for every model.
+**AML part (Phases 3–4), test block, masked MAE in mph** ([baselines.csv](results/baselines.csv), [gap_results.csv](results/gap_results.csv)):
+
+| Model | 15 min | 30 min | 60 min |
+|---|---|---|---|
+| Persistence | 3.49 | 4.20 | 5.37 |
+| Historical average | 4.42 | 4.42 | 4.42 |
+| Ridge per sensor | 3.31 | 4.08 | 5.17 |
+| Random Forest (multi-output) | 3.08 | 3.68 | 4.45 |
+| LSTM, no graph | 2.97 | 3.55 | 4.35 |
+| **XGBoost per horizon** (best independent model) | 3.02 | 3.51 | 4.01 |
+| XGBoost + neighbours (both directions) | **2.91** | **3.42** | **3.95** |
+
+The gap (Phase 4): XGBoost's error is 5–6× higher in the 30 min after a congestion onset, and its errors correlate only between road-linked sensors. Neighbour features help at every horizon, which is the case for a graph model.
+
+*Graph models and the full comparison (peak vs off-peak, significance) follow in Phases 5–6.*
 
 ## Reproduce
 ```bash

@@ -15,8 +15,8 @@ This guide is the single source of truth for the project. It covers every line o
 | 1 | Get the data and understand it | 4–6 | ✅ Done | Column order verified; five EDA figures; findings written ([report](phase_reports/PHASE_1_REPORT.md)) |
 | 2 | Preprocessing without leakage | 7–9 | ✅ Done | **Leakage tests pass** ◆ ([report](phase_reports/PHASE_2_REPORT.md)) |
 | 3 | ML baselines (strong, honest, per-segment) | 10–14 | ✅ Done ([report](phase_reports/PHASE_3_REPORT.md)) | `results/baselines.csv` complete |
-| 4 | Identify the gap with evidence | 15–16 | 🟡 In progress | Four gap plots + "XGB + neighbours" row |
-| 5 | Graph deep-learning models | 17–28 | ☐ | **DCRNN within ~5% of reference** ◆ |
+| 4 | Identify the gap with evidence | 15–16 | ✅ Done ([report](phase_reports/PHASE_4_REPORT.md)) | Four gap plots + "XGB + neighbours" row |
+| 5 | Graph deep-learning models | 17–28 | ⏭ Next | **DCRNN within ~5% of reference** ◆ |
 | 6 | Fair comparison | 29–32 | ☐ | **Results tested for significance** ◆ |
 | 7 | Congestion maps and visuals | 33–36 | ☐ | Figures 1–6 + interactive map |
 | 8 | *Optional* simulated signal control (SUMO) | 37–42 | ☐ | 3 controllers × ≥10 seeds |
