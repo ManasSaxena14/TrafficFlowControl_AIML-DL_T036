@@ -105,3 +105,38 @@ def test_ridge_recovers_a_linear_signal():
     M = np.ones_like(Y, dtype=bool)
     m = simple.RidgePerSensor(n_sensors=N, alphas=(0.1,)).fit(F, Y, M, F, Y, M)
     assert np.abs(m.predict(F) - Y).mean() < 0.05
+
+
+# ----------------------------------------------------------------------------- trees (commit 2)
+def _toy(n_windows=24, seed=0):
+    from src.models.trees import N_SENSORS
+    rng = np.random.default_rng(seed)
+    F = rng.normal(size=(n_windows * N_SENSORS, len(fb.FEATURE_NAMES))).astype(np.float32)
+    Y = np.stack([F[:, 0] * (1 + 0.1 * h) + 3 for h in range(12)], axis=1).astype(np.float32)
+    M = rng.random(Y.shape) > 0.1
+    return F, np.where(M, Y, np.nan), M
+
+
+def test_window_stride_rows_keeps_whole_windows():
+    from src.models.trees import N_SENSORS, window_stride_rows
+    idx = window_stride_rows(10 * N_SENSORS, 3)
+    assert len(idx) == 4 * N_SENSORS and idx[0] == 0 and idx[N_SENSORS] == 3 * N_SENSORS
+
+
+def test_xgb_per_horizon_learns_and_ignores_masked_targets():
+    from src.models.trees import XGBPerHorizon
+    F, Y, M = _toy()
+    m = XGBPerHorizon(stride=1, n_estimators=40).fit((F, Y, M), (F, Y, M), log=lambda *_: None)
+    P = m.predict(F)
+    assert P.shape == (len(F), 12) and np.isfinite(P).all()
+    assert np.abs(P - np.nan_to_num(Y))[M].mean() < 1.0
+    imp = m.importance()
+    assert imp.shape == (len(fb.FEATURE_NAMES), 12) and np.allclose(imp.sum(), 1.0) and imp.iloc[0].min() > 0.3
+
+
+def test_random_forest_drops_masked_training_rows_only():
+    from src.models.trees import RandomForestMulti
+    F, Y, M = _toy()
+    m = RandomForestMulti(stride=1, n_estimators=8, max_depth=8, max_samples=0.5).fit((F, Y, M))
+    assert m.n_train_rows == int(M.all(axis=1).sum())            # rows with any masked target are dropped...
+    assert m.predict(F).shape == (len(F), 12)                      # ...but prediction covers every row

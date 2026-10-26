@@ -1,6 +1,6 @@
 """Phase 3 runner: fit one baseline, score it on val and test, store per-horizon results and predictions.
 
-    python -m src.train.baselines persistence hist_avg ridge      # (xgb, rf, lstm are added in later commits)
+    python -m src.train.baselines persistence hist_avg ridge      # (also: xgb rf)
     python -m src.train.baselines --table                         # merge results/baselines/*.csv -> results/baselines.csv
 
 Hyper-parameters are chosen on the validation block only. Test numbers are written but never used to choose anything.
@@ -19,7 +19,7 @@ from src.data.load import load_speed
 from src.data.preprocess import load_config, split_bounds
 from src.eval.evaluate import REPORT_HORIZONS, evaluate_rows
 from src.features.build import load_features
-from src.models import simple
+from src.models import simple, trees
 
 ROOT = PROCESSED.parents[1]
 RESULTS = ROOT / "results" / "baselines"
@@ -71,6 +71,26 @@ def run_ridge():
                  {"alpha": model.alpha, "val_mae_by_alpha": model.val_mae})
 
 
+def run_xgb():
+    train, val = load_features("train"), load_features("val")
+    model = trees.XGBPerHorizon()
+    tuning = model.tune(train, val)
+    print("  tuning on h=6 (val MAE):\n" + tuning.to_string(index=False))
+    model.fit(train, val)
+    model.save(ROOT / "checkpoints" / "xgb")
+    imp = model.importance()
+    imp.to_csv(RESULTS / "xgb_importance.csv")
+    return score("xgb", lambda split: model.predict(load_features(split)[0]),
+                 {"stride": model.stride, "params": model.params, "best_rounds": model.best_rounds,
+                  "tuning_h6": tuning.to_dict("records")})
+
+
+def run_rf():
+    model = trees.RandomForestMulti().fit(load_features("train"))
+    return score("rf", lambda split: model.predict(load_features(split)[0]),
+                 {"stride": model.stride, "train_rows": model.n_train_rows, "params": model.params})
+
+
 def make_table() -> pd.DataFrame:
     """results/baselines.csv: MAE / RMSE / MAPE at 15 / 30 / 60 min (and pooled) for every rung that has been run."""
     rows = []
@@ -93,7 +113,8 @@ def make_table() -> pd.DataFrame:
     return table
 
 
-RUNNERS = {"persistence": run_persistence, "hist_avg": run_hist_avg, "ridge": run_ridge}
+RUNNERS = {"persistence": run_persistence, "hist_avg": run_hist_avg, "ridge": run_ridge,
+           "xgb": run_xgb, "rf": run_rf}
 
 
 def main() -> None:

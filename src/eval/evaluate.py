@@ -14,12 +14,13 @@ HORIZONS = list(range(1, 13))
 REPORT_HORIZONS = {3: 15, 6: 30, 12: 60}     # horizon step -> minutes
 
 
-def evaluate_rows(Y: np.ndarray, P: np.ndarray, M: np.ndarray) -> pd.DataFrame:
-    """Rows 'horizon' = '1'..'12' (5 min each) plus 'avg' (pooled over all 12). Masked targets never count."""
+def evaluate_rows(Y: np.ndarray, P: np.ndarray, M: np.ndarray, horizons: list[int] = HORIZONS) -> pd.DataFrame:
+    """Rows 'horizon' = '1'..'12' (5 min each) plus 'avg' (pooled over the evaluated horizons). Masked targets never count."""
     rows = []
-    for h in HORIZONS:
+    cols = [h - 1 for h in horizons]
+    for h in horizons:
         y, p, m = np.asarray(Y[:, h - 1]), np.asarray(P[:, h - 1]), np.asarray(M[:, h - 1])
         rows.append((str(h), masked_mae(y, p, m), masked_rmse(y, p, m), masked_mape(y, p, m)))
-    y, p, m = np.asarray(Y), np.asarray(P), np.asarray(M)
+    y, p, m = np.asarray(Y)[:, cols], np.asarray(P)[:, cols], np.asarray(M)[:, cols]
     rows.append(("avg", masked_mae(y, p, m), masked_rmse(y, p, m), masked_mape(y, p, m)))
     return pd.DataFrame(rows, columns=["horizon", "mae", "rmse", "mape"])
