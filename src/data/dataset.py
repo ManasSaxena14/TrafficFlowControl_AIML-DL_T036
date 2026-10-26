@@ -9,9 +9,10 @@ import numpy as np
 PROCESSED = Path(__file__).resolve().parents[2] / "data" / "processed"
 
 
-def load_split(name: str, protocol: str = "strict", root: Path = PROCESSED) -> dict[str, np.ndarray]:
+def load_split(name: str, protocol: str = "strict", root: Path = PROCESSED, keys: list[str] | None = None) -> dict[str, np.ndarray]:
+    """Load a split. Pass keys=[...] to read only some arrays (X is ~1.7 GB for train)."""
     with np.load(root / protocol / f"{name}.npz") as z:
-        return {k: z[k] for k in z.files}
+        return {k: z[k] for k in (keys or z.files)}
 
 
 def load_scaler(protocol: str = "strict", root: Path = PROCESSED) -> dict:
