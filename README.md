@@ -43,6 +43,10 @@ The gap (Phase 4): XGBoost's error is 5–6× higher in the 30 min after a conge
 
 *Graph models and the full comparison (peak vs off-peak, significance) follow in Phases 5–6.*
 
+## Dashboard and slides
+- `make dashboard` opens an interactive Streamlit dashboard over the saved results (`app.py`, contributed by Sumit).
+- [Project slides](docs/presentation/AML_Traffic_Flow_Forecasting.pptx): 11-slide summary of the AML part (data, leak-free pipeline, baselines, all scores, the gap).
+
 ## Reproduce
 ```bash
 make setup      # Python 3.11 venv (uv) + pinned requirements; macOS also: brew install libomp
