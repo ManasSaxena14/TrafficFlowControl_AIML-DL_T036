@@ -1,6 +1,6 @@
 # Phase 3 report: ML baselines (strong, honest, per-segment)
 
-**Status:** ✅ complete · **Table:** [`results/baselines.csv`](../../results/baselines.csv) · **Per-horizon results:** `results/baselines/<model>.csv` · **Code:** `src/features/build.py`, `src/models/{simple,trees,lstm}.py`, `src/train/baselines.py`, `src/eval/evaluate.py` · **Tests:** `tests/test_baselines.py`
+**Status:** Complete · **Table:** [`results/baselines.csv`](../../results/baselines.csv) · **Per-horizon results:** `results/baselines/<model>.csv` · **Code:** `src/features/build.py`, `src/models/{simple,trees,lstm}.py`, `src/train/baselines.py`, `src/eval/evaluate.py` · **Tests:** `tests/test_baselines.py`
 
 Re-run with `make features baselines`.
 
@@ -12,6 +12,7 @@ Re-run with `make features baselines`.
 - [x] `results/baselines.csv`: MAE / RMSE / MAPE at 15 / 30 / 60 min
 - [x] XGBoost feature-importance plot
 - [x] Paragraph: strongest baseline and where it degrades
+- [x] Peak vs off-peak breakdown (brief: fair comparison)
 
 ## Protocol (same for every rung)
 - Phase 2 strict split: train / val / test by time with a purge gap. **Hyper-parameters are chosen on val only**; test is reported, never used to choose.
@@ -45,6 +46,20 @@ Re-run with `make features baselines`.
 ![error by horizon](../../reports/figures/fig07_baseline_error_by_horizon.png)
 
 **Strongest baseline: XGBoost.** It beats persistence by 14% at 15 min and 25% at 60 min, has the lowest average MAE (3.44), the lowest RMSE at every horizon and the lowest MAPE at 30 and 60 min; only the LSTM edges it at 15 min (MAE 2.97 vs 3.02, MAPE 8.0% vs 8.2%). Its error still grows steadily with horizon (3.02 → 4.01 mph MAE, 5.47 → 7.28 RMSE): beyond ~15 min the information it needs is no longer in the sensor's own history. That is the gap Phase 4 measures. Historical average is flat (it ignores the present); at 60 min it beats persistence and Ridge but not the tree models.
+
+## Peak vs off-peak (test block, MAE in mph)
+Peak = weekday 07:00–09:59 and 16:00–19:59 (the brief's definition), judged on the timestamp being predicted. Full table with RMSE / MAPE and counts: [`results/baselines_peak.csv`](../../results/baselines_peak.csv).
+
+| Model | Peak 15 / 30 / 60 | Off-peak 15 / 30 / 60 | Weekend 15 / 30 / 60 |
+|---|---|---|---|
+| Persistence | 4.61 / 6.05 / 8.32 | 3.25 / 3.74 / 4.62 | 2.86 / 3.31 / 3.98 |
+| Historical average | 6.82 / 6.82 / 6.82 | 3.58 / 3.58 / 3.58 | 3.94 / 3.94 / 3.94 |
+| Ridge per sensor | 4.58 / 6.02 / 7.93 | 3.00 / 3.56 / 4.40 | 2.71 / 3.27 / 4.10 |
+| Random Forest | 4.31 / 5.51 / 7.08 | 2.75 / 3.15 / 3.63 | 2.56 / 3.02 / 3.65 |
+| LSTM (no graph) | **4.16** / 5.34 / 6.96 | **2.69** / 3.09 / 3.66 | **2.39** / **2.75** / **3.23** |
+| **XGBoost** | 4.22 / **5.22** / **6.23** | **2.69** / **3.01** / **3.32** | 2.50 / 2.89 / 3.33 |
+
+Peak-hour error is 1.4–1.9× the off-peak error for every model, and the peak penalty grows with horizon (XGBoost: 4.22 → 6.23 at peak vs 2.69 → 3.32 off-peak). Rush hours are exactly when congestion forms and travels, so this is where a network-aware model has the most to gain.
 
 ## XGBoost: design and tuning
 - One model per horizon (12), all 207 sensors stacked, sensor id as a feature. Still **independent**: a row never contains a neighbour's speed.

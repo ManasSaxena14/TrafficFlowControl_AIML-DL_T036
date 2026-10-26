@@ -140,3 +140,16 @@ def test_random_forest_drops_masked_training_rows_only():
     m = RandomForestMulti(stride=1, n_estimators=8, max_depth=8, max_samples=0.5).fit((F, Y, M))
     assert m.n_train_rows == int(M.all(axis=1).sum())            # rows with any masked target are dropped...
     assert m.predict(F).shape == (len(F), 12)                      # ...but prediction covers every row
+
+
+def test_period_labels_use_predicted_timestamp_and_brief_windows():
+    from src.eval.evaluate import period_labels
+    peaks = {"am": ["07:00", "09:59"], "pm": ["16:00", "19:59"]}
+    tt = np.array([["2012-06-06T06:55", "2012-06-06T07:00", "2012-06-06T09:55", "2012-06-06T10:00"],     # Wednesday
+                   ["2012-06-06T19:55", "2012-06-06T20:00", "2012-06-09T08:00", "2012-06-10T17:00"]],    # Wed, Sat, Sun
+                  dtype="datetime64[ns]")
+    lab = period_labels(tt, peaks, n_sensors=3)
+    assert lab.shape == (6, 4)
+    assert list(lab[0]) == ["offpeak", "peak", "peak", "offpeak"]
+    assert list(lab[3]) == ["peak", "offpeak", "weekend", "weekend"]
+    assert (lab[0] == lab[2]).all()                                     # every sensor of a window shares the label

@@ -17,7 +17,7 @@ import pandas as pd
 from src.data.dataset import PROCESSED, load_scaler, load_split
 from src.data.load import load_speed
 from src.data.preprocess import load_config, split_bounds
-from src.eval.evaluate import REPORT_HORIZONS, evaluate_rows
+from src.eval.evaluate import REPORT_HORIZONS, evaluate_by_period, evaluate_rows, period_labels
 from src.features.build import load_features
 from src.models import simple
 
@@ -137,6 +137,29 @@ def make_table() -> pd.DataFrame:
     return table
 
 
+def make_peak_table() -> pd.DataFrame:
+    """results/baselines_peak.csv: test MAE / RMSE / MAPE at 15 / 30 / 60 min for weekday peak, weekday off-peak and weekend.
+
+    Peak = weekday 07:00-09:59 and 16:00-19:59 (the brief's definition, from the config) on the timestamp being predicted.
+    """
+    labels = period_labels(load_split("test", keys=["target_time"])["target_time"], load_config()["peaks"])
+    _, Y, M = load_features("test")
+    frames = []
+    for name, (rung, label) in LADDER.items():
+        f = PRED_DIR / f"{name}_test.npy"
+        if not f.exists():
+            continue
+        df = evaluate_by_period(Y, np.load(f, mmap_mode="r"), M, labels, sorted(REPORT_HORIZONS))
+        df.insert(0, "model", label)
+        df.insert(0, "rung", rung)
+        frames.append(df)
+    out = pd.concat(frames, ignore_index=True)
+    out["minutes"] = out.horizon.astype(int) * 5
+    out = out.drop(columns="horizon")
+    out.to_csv(ROOT / "results" / "baselines_peak.csv", index=False, float_format="%.3f")
+    return out
+
+
 RUNNERS = {"persistence": run_persistence, "hist_avg": run_hist_avg, "ridge": run_ridge,
            "xgb": run_xgb, "rf": run_rf, "lstm": run_lstm}
 
@@ -145,6 +168,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("models", nargs="*", choices=list(RUNNERS))
     ap.add_argument("--table", action="store_true")
+    ap.add_argument("--peak", action="store_true", help="peak / off-peak / weekend breakdown of the test block")
     args = ap.parse_args()
     load_scaler()   # fail early if Phase 2 has not been run
     for m in args.models:
@@ -153,6 +177,8 @@ def main() -> None:
         print(f"   {m}: {time.time() - t0:.0f}s")
     if args.table or args.models:
         print(make_table().to_string(index=False))
+    if args.peak:
+        print(make_peak_table().pivot_table(index="model", columns=["period", "minutes"], values="mae").round(2).to_string())
 
 
 if __name__ == "__main__":

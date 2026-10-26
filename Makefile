@@ -19,7 +19,7 @@ features:         ## Phase 3: per-sensor feature tables (memory-mapped .npy)
 	$(PY) -m src.features.build
 
 baselines:        ## Phase 3: baseline ladder -> results/baselines.csv + figures 6-7
-	$(PY) -m src.train.baselines persistence hist_avg ridge xgb rf lstm
+	$(PY) -m src.train.baselines persistence hist_avg ridge xgb rf lstm --peak
 	$(PY) -m src.viz.baseline_plots
 
 gap:              ## Phase 4: gap evidence -> results/gap_results.csv, results/gap/, figures 8-11
