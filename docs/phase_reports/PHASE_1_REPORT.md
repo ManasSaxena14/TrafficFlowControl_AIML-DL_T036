@@ -1,6 +1,6 @@
 # Phase 1 report: METR-LA data and exploratory analysis
 
-**Status:** ✅ complete · **Notebook:** [`notebooks/01_eda.ipynb`](../../notebooks/01_eda.ipynb) · **Numbers:** [`results/phase1_findings.json`](../../results/phase1_findings.json) · **Code:** `src/data/load.py`, `src/analysis/eda.py`, `src/viz/eda_plots.py` · **Tests:** `tests/test_data.py` (9 passing)
+**Status:** Complete · **Notebook:** [`notebooks/01_eda.ipynb`](../../notebooks/01_eda.ipynb) · **Numbers:** [`results/phase1_findings.json`](../../results/phase1_findings.json) · **Code:** `src/data/load.py`, `src/analysis/eda.py`, `src/viz/eda_plots.py` · **Tests:** `tests/test_data.py` (9 passing)
 
 Re-run everything with `make eda`.
 

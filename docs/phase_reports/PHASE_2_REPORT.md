@@ -1,6 +1,6 @@
 # Phase 2 report: preprocessing without leakage
 
-**Status:** ✅ complete · **Code:** `src/data/preprocess.py`, `src/data/dataset.py`, `src/eval/metrics.py` · **Config:** `configs/data/metr_la.yaml` · **Tests:** `tests/test_leakage.py` (12 passing; 21 with Phase 1)
+**Status:** Complete · **Code:** `src/data/preprocess.py`, `src/data/dataset.py`, `src/eval/metrics.py` · **Config:** `configs/data/metr_la.yaml` · **Tests:** `tests/test_leakage.py` (12 tests)
 
 Re-run with `make preprocess` (or `python -m src.data.preprocess --protocol strict|dcrnn`).
 
@@ -51,7 +51,7 @@ Both are built so Phase 6 can report each once.
 - [x] shapes: X (S,12,207,7), Y (S,12,207); sizes equal block length minus 11
 - [x] cyclic features: 23:55 and 00:05 are neighbours
 
-## Design notes (interview-ready)
+## Design notes
 - **Why purge?** Overlapping windows share 11 of 12 timestamps, so a boundary-straddling window puts near-copies of val/test targets in train.
 - **Imputation:** a down sensor is forward-filled from its last real reading inside the same 12-step input window; if none, the train mean of that (sensor, time-of-day slot). The mask channel tells the model the value is imputed.
 - **Inputs may look back across a block boundary** (e.g. the first val window's inputs end in train data). That is the past, not a label, and matches deployment.

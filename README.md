@@ -13,16 +13,16 @@ Speed forecasting 5–60 min ahead on METR-LA (207 Los Angeles freeway sensors),
 
 | Phase | | Status |
 |---|---|---|
-| 0 | Setup, repo, pre-reads | ✅ |
-| 1 | Data + EDA ([report](docs/phase_reports/PHASE_1_REPORT.md)) | ✅ |
-| 2 | Leak-free preprocessing ([report](docs/phase_reports/PHASE_2_REPORT.md)) | ✅ |
-| 3 | ML baselines ([report](docs/phase_reports/PHASE_3_REPORT.md)) | ✅ |
-| 4 | Identify the gap ([report](docs/phase_reports/PHASE_4_REPORT.md)) | ✅ |
-| 5 | Graph models (STGAT, DCRNN) + ablations | ⏭ next |
-| 6 | Fair comparison, horizon & peak metrics, significance | ☐ |
-| 7 | Congestion maps | ☐ |
-| 8 | Simulated signal control (SUMO, optional) | ☐ |
-| 9 | Extensions & packaging | ☐ |
+| 0 | Setup, repo, pre-reads | Done |
+| 1 | Data + EDA ([report](docs/phase_reports/PHASE_1_REPORT.md)) | Done |
+| 2 | Leak-free preprocessing ([report](docs/phase_reports/PHASE_2_REPORT.md)) | Done |
+| 3 | ML baselines ([report](docs/phase_reports/PHASE_3_REPORT.md)) | Done |
+| 4 | Identify the gap ([report](docs/phase_reports/PHASE_4_REPORT.md)) | Done |
+| 5 | Graph models (STGAT, DCRNN) + ablations | Next |
+| 6 | Fair comparison, horizon & peak metrics, significance | Not started |
+| 7 | Congestion maps | Not started |
+| 8 | Simulated signal control (SUMO, optional) | Not started |
+| 9 | Extensions & packaging | Not started |
 
 The full plan, with every requirement of the brief mapped to a phase, is in **[docs/PROJECT_GUIDE.md](docs/PROJECT_GUIDE.md)**.
 

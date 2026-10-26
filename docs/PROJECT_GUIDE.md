@@ -11,16 +11,16 @@ This guide is the single source of truth for the project. It covers every line o
 
 | Phase | Name | Days | Status | Gate to pass before the next phase |
 |---|---|---|---|---|
-| 0 | Setup, structure, pre-reads | 1–3 | ✅ Done | Repo builds, `make test` passes, paper notes written |
-| 1 | Get the data and understand it | 4–6 | ✅ Done | Column order verified; five EDA figures; findings written ([report](phase_reports/PHASE_1_REPORT.md)) |
-| 2 | Preprocessing without leakage | 7–9 | ✅ Done | **Leakage tests pass** ◆ ([report](phase_reports/PHASE_2_REPORT.md)) |
-| 3 | ML baselines (strong, honest, per-segment) | 10–14 | ✅ Done ([report](phase_reports/PHASE_3_REPORT.md)) | `results/baselines.csv` complete |
-| 4 | Identify the gap with evidence | 15–16 | ✅ Done ([report](phase_reports/PHASE_4_REPORT.md)) | Four gap plots + "XGB + neighbours" row |
-| 5 | Graph deep-learning models | 17–28 | ⏭ Next | **DCRNN within ~5% of reference** ◆ |
-| 6 | Fair comparison | 29–32 | ☐ | **Results tested for significance** ◆ |
-| 7 | Congestion maps and visuals | 33–36 | ☐ | Figures 1–6 + interactive map |
-| 8 | *Optional* simulated signal control (SUMO) | 37–42 | ☐ | 3 controllers × ≥10 seeds |
-| 9 | Extensions, packaging, placement prep | 43–50 | ☐ | README, CI, report, demo, resume bullets |
+| 0 | Setup, structure, pre-reads | 1–3 | Done | Repo builds, `make test` passes, paper notes written |
+| 1 | Get the data and understand it | 4–6 | Done | Column order verified; five EDA figures; findings written ([report](phase_reports/PHASE_1_REPORT.md)) |
+| 2 | Preprocessing without leakage | 7–9 | Done | **Leakage tests pass** ◆ ([report](phase_reports/PHASE_2_REPORT.md)) |
+| 3 | ML baselines (strong, honest, per-segment) | 10–14 | Done ([report](phase_reports/PHASE_3_REPORT.md)) | `results/baselines.csv` complete |
+| 4 | Identify the gap with evidence | 15–16 | Done ([report](phase_reports/PHASE_4_REPORT.md)) | Four gap plots + "XGB + neighbours" row |
+| 5 | Graph deep-learning models | 17–28 | Next | **DCRNN within ~5% of reference** ◆ |
+| 6 | Fair comparison | 29–32 | Not started | **Results tested for significance** ◆ |
+| 7 | Congestion maps and visuals | 33–36 | Not started | Figures 1–6 + interactive map |
+| 8 | *Optional* simulated signal control (SUMO) | 37–42 | Not started | 3 controllers × ≥10 seeds |
+| 9 | Extensions, packaging, placement prep | 43–50 | Not started | README, CI, report, demo, resume bullets |
 
 ◆ = hard gate. A leak found after training wastes every model trained before it.
 
@@ -60,7 +60,7 @@ Every requirement in the project brief is listed here. Tick these off as you go;
 
 ---
 
-## 2. What makes this "FAANG-grade"
+## 2. Quality bar
 
 The model is not what impresses. Interviewers at strong ML teams probe five things, and every phase below is designed around them:
 
@@ -111,7 +111,7 @@ traffic-gnn/
 
 ---
 
-## Phase 0 — Setup, structure and pre-reads ✅
+## Phase 0 — Setup, structure and pre-reads
 
 **Goal.** A reproducible repo and a clear mental model of the key papers before writing model code.
 
@@ -133,7 +133,7 @@ make test lint
 
 ---
 
-## Phase 1 — Get the data and understand it ✅
+## Phase 1 — Get the data and understand it
 
 **Goal.** Know the data well enough to justify every later modelling choice. Full results: [`phase_reports/PHASE_1_REPORT.md`](phase_reports/PHASE_1_REPORT.md).
 
@@ -158,7 +158,7 @@ make test lint
 
 ---
 
-## Phase 2 — Preprocessing without leakage ✅
+## Phase 2 — Preprocessing without leakage
 
 **Goal.** One shared pipeline that feeds every model, so the comparison is fair by construction.
 **Output.** `data/processed/{train,val,test}.npz` with `X (samples, 12, 207, F)`, `Y (samples, 12, 207)`, `M_y` (target mask), plus `scaler.json` and `adj.npz`.
@@ -212,13 +212,13 @@ Keep it directed and fixed (brief). A learned adjacency is only an ablation.
 Input = last 12 steps (60 min); output = next 12 steps (5…60 min). The **same 12-step history for every model**, which is the equal-history requirement.
 
 ### Leakage tests (`tests/test_leakage.py`): the Phase 2 gate
-- [ ] max train target timestamp < min val target timestamp < min test target timestamp
-- [ ] no target timestamp appears in two splits (strict mode)
-- [ ] scaler mean equals the NaN-mean of the train slice only
-- [ ] masked positions contribute exactly zero to the loss (perturb them, loss unchanged)
-- [ ] sensor order in X equals adjacency order
-- [ ] rebuilt adjacency == `adj_mx.pkl`
-- [ ] shapes: X (S,12,207,7), Y (S,12,207)
+- [x] max train target timestamp < min val target timestamp < min test target timestamp
+- [x] no target timestamp appears in two splits (strict mode)
+- [x] scaler mean equals the NaN-mean of the train slice only
+- [x] masked positions contribute exactly zero to the loss (perturb them, loss unchanged)
+- [x] sensor order in X equals adjacency order
+- [x] rebuilt adjacency == `adj_mx.pkl`
+- [x] shapes: X (S,12,207,7), Y (S,12,207)
 
 **Interview angle.** *Why not random split? Why mask zeros? Why fit the scaler on train only? What is a purge gap?*
 
@@ -269,9 +269,9 @@ rf.fit(Xtr, Ytr)   # Ytr (rows, 12)
 RF can't take NaN targets: drop training rows with any masked target, but **evaluate on all test rows with the mask**. Memory tip: ~5M rows × ~45 features; subsample training rows (e.g. every 3rd timestamp) if needed and say so.
 
 **Deliverables**
-- [ ] `results/baselines.csv`: MAE/RMSE/MAPE at 15/30/60 min for rungs 0–5
-- [ ] XGBoost feature-importance plot (expect speed[t] and time-of-day to dominate)
-- [ ] One paragraph: which baseline is strongest and at which horizon it degrades
+- [x] `results/baselines.csv`: MAE/RMSE/MAPE at 15/30/60 min for rungs 0–5
+- [x] XGBoost feature-importance plot (expect speed[t] and time-of-day to dominate)
+- [x] One paragraph: which baseline is strongest and at which horizon it degrades
 
 ---
 
@@ -290,8 +290,8 @@ RF can't take NaN targets: drop training rows with any masked target, but **eval
 > Independent segment models forecast each sensor from its own history. Congestion forms at bottlenecks and travels backwards along road links at ~16 km/h (Phase 1), so at longer horizons the most predictive information sits at neighbouring sensors. We observe this as rising error with horizon, large error at congestion onset, and spatially correlated residuals. A graph model over the road network should close this gap.
 
 **Deliverables**
-- [ ] Four gap plots
-- [ ] "XGB + neighbours" rows added to results (bridges baselines and GNNs)
+- [x] Four gap plots
+- [x] "XGB + neighbours" rows added to results (bridges baselines and GNNs)
 
 ---
 

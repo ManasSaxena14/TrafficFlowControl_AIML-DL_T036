@@ -1,6 +1,6 @@
 # Phase 4 report: identify the gap with evidence
 
-**Status:** ✅ complete · **Numbers:** `results/gap/`, [`results/phase4_findings.json`](../../results/phase4_findings.json) · **Code:** `src/analysis/gap.py`, `src/train/phase4.py`, `src/viz/gap_plots.py` · **Tests:** `tests/test_gap.py`
+**Status:** Complete · **Numbers:** `results/gap/`, [`results/phase4_findings.json`](../../results/phase4_findings.json) · **Code:** `src/analysis/gap.py`, `src/train/phase4.py`, `src/viz/gap_plots.py` · **Tests:** `tests/test_gap.py`
 
 Re-run with `make gap`.
 
