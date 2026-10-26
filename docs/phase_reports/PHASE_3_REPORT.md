@@ -59,7 +59,7 @@ Peak = weekday 07:00–09:59 and 16:00–19:59 (the brief's definition), judged 
 | LSTM (no graph) | **4.16** / 5.34 / 6.96 | **2.69** / 3.09 / 3.66 | **2.39** / **2.75** / **3.23** |
 | **XGBoost** | 4.22 / **5.22** / **6.23** | **2.69** / **3.01** / **3.32** | 2.50 / 2.89 / 3.33 |
 
-Peak-hour error is 1.4–1.9× the off-peak error for every model, and the peak penalty grows with horizon (XGBoost: 4.22 → 6.23 at peak vs 2.69 → 3.32 off-peak). Rush hours are exactly when congestion forms and travels, so this is where a network-aware model has the most to gain.
+Peak-hour error is 1.4–1.95× the off-peak error for every model, and the peak penalty grows with horizon (XGBoost: 4.22 → 6.23 at peak vs 2.69 → 3.32 off-peak). Rush hours are exactly when congestion forms and travels, so this is where a network-aware model has the most to gain.
 
 ## XGBoost: design and tuning
 - One model per horizon (12), all 207 sensors stacked, sensor id as a feature. Still **independent**: a row never contains a neighbour's speed.
