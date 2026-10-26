@@ -15,8 +15,8 @@ Speed forecasting 5–60 min ahead on METR-LA (207 Los Angeles freeway sensors),
 |---|---|---|
 | 0 | Setup, repo, pre-reads | ✅ |
 | 1 | Data + EDA ([report](docs/phase_reports/PHASE_1_REPORT.md)) | ✅ |
-| 2 | Leak-free preprocessing | ⏭ next |
-| 3 | ML baselines (XGBoost per segment, multi-output RF, LSTM) | ☐ |
+| 2 | Leak-free preprocessing ([report](docs/phase_reports/PHASE_2_REPORT.md)) | ✅ |
+| 3 | ML baselines (XGBoost per segment, multi-output RF, LSTM) | ⏭ next |
 | 4 | Identify the gap | ☐ |
 | 5 | Graph models (STGAT, DCRNN) + ablations | ☐ |
 | 6 | Fair comparison, horizon & peak metrics, significance | ☐ |
@@ -34,6 +34,7 @@ The full plan, with every requirement of the brief mapped to a phase, is in **[d
 make setup      # Python 3.11 venv (uv) + pinned requirements; macOS also: brew install libomp
 make data       # DCRNN repo graph files + metr-la.h5 from its Google Drive link
 make eda        # re-executes notebooks/01_eda.ipynb → reports/figures/, results/phase1_findings.json
+make preprocess # Phase 2: data/processed/strict/{train,val,test}.npz + scaler.json + adj.npz
 make test lint
 ```
 

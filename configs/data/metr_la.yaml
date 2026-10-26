@@ -22,3 +22,8 @@ peaks:            # brief's definition, on the timestamp being predicted, weekda
   am: ["07:00", "09:59"]
   pm: ["16:00", "19:59"]
 seed: 42
+preprocess:       # Phase 2
+  protocol: strict              # strict = purged chronological split | dcrnn = reference window split (for published-number comparison)
+  processed_dir: data/processed
+  impute_ffill_limit: 12        # forward-fill an outage inside the input window; else train mean of (sensor, time-of-day slot)
+  drop_train_target_masked_frac: 0.9   # strict only: drop train windows whose targets are > 90% masked

@@ -13,8 +13,8 @@ This guide is the single source of truth for the project. It covers every line o
 |---|---|---|---|---|
 | 0 | Setup, structure, pre-reads | 1–3 | ✅ Done | Repo builds, `make test` passes, paper notes written |
 | 1 | Get the data and understand it | 4–6 | ✅ Done | Column order verified; five EDA figures; findings written ([report](phase_reports/PHASE_1_REPORT.md)) |
-| 2 | Preprocessing without leakage | 7–9 | ⏭ Next | **Leakage tests pass** ◆ |
-| 3 | ML baselines (strong, honest, per-segment) | 10–14 | ☐ | `results/baselines.csv` complete |
+| 2 | Preprocessing without leakage | 7–9 | ✅ Done | **Leakage tests pass** ◆ ([report](phase_reports/PHASE_2_REPORT.md)) |
+| 3 | ML baselines (strong, honest, per-segment) | 10–14 | ⏭ Next | `results/baselines.csv` complete |
 | 4 | Identify the gap with evidence | 15–16 | ☐ | Four gap plots + "XGB + neighbours" row |
 | 5 | Graph deep-learning models | 17–28 | ☐ | **DCRNN within ~5% of reference** ◆ |
 | 6 | Fair comparison | 29–32 | ☐ | **Results tested for significance** ◆ |
@@ -158,7 +158,7 @@ make test lint
 
 ---
 
-## Phase 2 — Preprocessing without leakage ⏭
+## Phase 2 — Preprocessing without leakage ✅
 
 **Goal.** One shared pipeline that feeds every model, so the comparison is fair by construction.
 **Output.** `data/processed/{train,val,test}.npz` with `X (samples, 12, 207, F)`, `Y (samples, 12, 207)`, `M_y` (target mask), plus `scaler.json` and `adj.npz`.
