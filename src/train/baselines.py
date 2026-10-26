@@ -19,7 +19,7 @@ from src.data.load import load_speed
 from src.data.preprocess import load_config, split_bounds
 from src.eval.evaluate import REPORT_HORIZONS, evaluate_rows
 from src.features.build import load_features
-from src.models import simple, trees
+from src.models import simple
 
 ROOT = PROCESSED.parents[1]
 RESULTS = ROOT / "results" / "baselines"
@@ -72,6 +72,8 @@ def run_ridge():
 
 
 def run_xgb():
+    from src.models import trees  # imported lazily: XGBoost's OpenMP runtime clashes with PyTorch's in one process
+
     train, val = load_features("train"), load_features("val")
     model = trees.XGBPerHorizon()
     tuning = model.tune(train, val)
@@ -86,6 +88,8 @@ def run_xgb():
 
 
 def run_rf():
+    from src.models import trees
+
     model = trees.RandomForestMulti().fit(load_features("train"))
     return score("rf", lambda split: model.predict(load_features(split)[0]),
                  {"stride": model.stride, "train_rows": model.n_train_rows, "params": model.params})
