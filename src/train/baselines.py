@@ -1,6 +1,6 @@
 """Phase 3 runner: fit one baseline, score it on val and test, store per-horizon results and predictions.
 
-    python -m src.train.baselines persistence hist_avg ridge      # (also: xgb rf)
+    python -m src.train.baselines persistence hist_avg ridge      # (also: xgb rf lstm)
     python -m src.train.baselines --table                         # merge results/baselines/*.csv -> results/baselines.csv
 
 Hyper-parameters are chosen on the validation block only. Test numbers are written but never used to choose anything.
@@ -91,6 +91,26 @@ def run_rf():
                  {"stride": model.stride, "train_rows": model.n_train_rows, "params": model.params})
 
 
+def run_lstm():
+    from src.models import lstm
+
+    scaler = load_scaler()
+    tr = load_split("train", keys=["X", "Y", "M_y"])
+    va = load_split("val", keys=["X", "Y", "M_y"])
+    model, history = lstm.fit(tr["X"], tr["Y"], tr["M_y"], va["X"], va["Y"], va["M_y"], scaler)
+    del tr, va
+    (ROOT / "checkpoints").mkdir(exist_ok=True)
+    import torch
+    torch.save(model.state_dict(), ROOT / "checkpoints" / "lstm.pt")
+    device = lstm.pick_device()
+    model.to(device)
+
+    def predict(split):
+        return lstm.predict(model, load_split(split, keys=["X"])["X"], scaler, device)
+
+    return score("lstm", predict, {"history": history, "hidden": 64, "layers": 2, "shared_weights_across_sensors": True})
+
+
 def make_table() -> pd.DataFrame:
     """results/baselines.csv: MAE / RMSE / MAPE at 15 / 30 / 60 min (and pooled) for every rung that has been run."""
     rows = []
@@ -114,7 +134,7 @@ def make_table() -> pd.DataFrame:
 
 
 RUNNERS = {"persistence": run_persistence, "hist_avg": run_hist_avg, "ridge": run_ridge,
-           "xgb": run_xgb, "rf": run_rf}
+           "xgb": run_xgb, "rf": run_rf, "lstm": run_lstm}
 
 
 def main() -> None:
