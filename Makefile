@@ -1,6 +1,6 @@
 PY := .venv/bin/python
 
-.PHONY: setup data eda preprocess features baselines gap dashboard test lint all
+.PHONY: setup data eda preprocess features baselines gap accuracy dashboard test lint all
 
 setup:            ## create the environment (Python 3.11 via uv)
 	uv venv --python 3.11 .venv && uv pip install --python $(PY) -r requirements.txt
@@ -25,6 +25,9 @@ baselines:        ## Phase 3: baseline ladder -> results/baselines.csv + figures
 gap:              ## Phase 4: gap evidence -> results/gap_results.csv, results/gap/, figures 8-11
 	$(PY) -m src.train.phase4 neighbours onset residuals table
 	$(PY) -m src.viz.gap_plots
+
+accuracy:         ## percent accuracy and within-5-mph scores -> results/accuracy.csv
+	$(PY) -m src.eval.accuracy
 
 dashboard:        ## interactive Streamlit dashboard over results/ (app.py)
 	$(PY) -m streamlit run app.py

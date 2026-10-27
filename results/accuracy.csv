@@ -1,0 +1,22 @@
+model,minutes,within_5mph_pct,mape_accuracy_pct,targets
+Persistence (last value),15,80.8,91.4,1244834
+Persistence (last value),30,77.9,89.2,1244816
+Persistence (last value),60,73.5,85.5,1244780
+Historical average,15,76.5,86.1,1244834
+Historical average,30,76.5,86.1,1244816
+Historical average,60,76.5,86.1,1244780
+Ridge per sensor,15,82.3,91.1,1244834
+Ridge per sensor,30,77.9,88.3,1244816
+Ridge per sensor,60,70.6,84.5,1244780
+XGBoost per horizon,15,84.3,91.8,1244834
+XGBoost per horizon,30,81.4,89.9,1244816
+XGBoost per horizon,60,78.6,88.0,1244780
+Multi-output Random Forest,15,84.1,91.7,1244834
+Multi-output Random Forest,30,80.6,89.4,1244816
+Multi-output Random Forest,60,75.9,86.5,1244780
+LSTM (no graph),15,85.1,92.0,1244834
+LSTM (no graph),30,82.6,89.7,1244816
+LSTM (no graph),60,79.5,86.5,1244780
+XGBoost + neighbours (both directions),15,84.7,92.3,1244834
+XGBoost + neighbours (both directions),30,81.7,90.4,1244816
+XGBoost + neighbours (both directions),60,78.8,88.3,1244780

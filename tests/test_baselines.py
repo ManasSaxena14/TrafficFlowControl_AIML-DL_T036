@@ -153,3 +153,11 @@ def test_period_labels_use_predicted_timestamp_and_brief_windows():
     assert list(lab[0]) == ["offpeak", "peak", "peak", "offpeak"]
     assert list(lab[3]) == ["peak", "offpeak", "weekend", "weekend"]
     assert (lab[0] == lab[2]).all()                                     # every sensor of a window shares the label
+
+
+def test_within_tolerance_counts_only_real_readings():
+    from src.eval.accuracy import within_tolerance
+    y = np.array([60.0, 60.0, 60.0, 60.0])
+    p = np.array([62.0, 66.0, 55.0, 0.0])
+    m = np.array([True, True, True, False])            # the last point is an outage and must not count
+    assert within_tolerance(y, p, m, 5.0) == pytest.approx(100 * 2 / 3)
