@@ -15,7 +15,7 @@
 \usepackage{tikz}
 \usetikzlibrary{positioning,arrows.meta}
 \usepackage[numbers,sort&compress]{natbib}
-\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black,pdftitle={Traffic Flow Prediction and Signal Control: AML project report},pdfauthor={Manas Saxena}]{hyperref}
 
 \graphicspath{{../figures/}}
 \input{generated/macros.tex}
@@ -184,11 +184,16 @@ Treating zeros as traffic would teach a model that roads randomly stop, so every
 \subsection{Daily rhythm}
 Weekday speeds dip in the morning and, more deeply, in the afternoon, while weekend speeds stay near free flow (Figure~\ref{fig:profile}).
 The brief's peak definition (weekdays 07:00--09:59 and 16:00--19:59) lies inside the detected dips.
-Because \PctAtLeastSixty\% of readings are at least 60~mph, average errors are dominated by easy free-flow periods; this motivates reporting peak and congestion-onset results separately.
+Because \PctAtLeastSixty\% of readings are at least 60~mph, average errors are dominated by easy free-flow periods; this motivates reporting peak and congestion-onset results separately (Figure~\ref{fig:dist}).
 \begin{figure}[ht]
 \centering\includegraphics[width=0.92\textwidth]{fig02_daily_profile.png}
 \caption{Network-mean speed by time of day for weekdays and weekends (training period only).}
 \label{fig:profile}
+\end{figure}
+\begin{figure}[ht]
+\centering\includegraphics[width=0.78\textwidth]{fig03_speed_distribution.png}
+\caption{Distribution of speed readings (outages excluded): most readings are near free flow, and congested readings are a minority.}
+\label{fig:dist}
 \end{figure}
 
 \subsection{The road graph and propagation of congestion}\label{sec:propagation}
