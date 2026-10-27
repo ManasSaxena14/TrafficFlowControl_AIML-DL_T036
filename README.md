@@ -1,6 +1,6 @@
 # Traffic Flow Prediction and Signal Control via Graph Attention Networks and Flow Models
 
-[Live dashboard](https://trafficflowamldl.streamlit.app) · [Project report (PDF)](docs/report/report.pdf) · [Slides](docs/presentation/AML_Traffic_Flow_Forecasting.pptx)
+[Live dashboard](https://trafficflowamldl.streamlit.app) · [Project report (PDF, 22 pages)](docs/report/report.pdf) · [Slides (13)](docs/presentation/AML_Traffic_Flow_Forecasting.pptx)
 
 **Does a model that sees the road network forecast traffic better than strong per-sensor models, and where does the gain come from?**
 This project forecasts freeway speed 5 to 60 minutes ahead on METR-LA (207 Los Angeles sensors). It builds a leak-free preprocessing pipeline, six forecasting baselines, and four experiments that measure what independent per-sensor models miss. The graph deep-learning models that should close that gap (graph attention and diffusion networks) are the next stage and are not part of the results below. Signal control is simulation only; nothing here controls real traffic.
@@ -45,6 +45,21 @@ Speed forecasting is a regression task, so there is no single accuracy figure. T
 | **XGBoost + neighbours (both directions)** | 92.3 / 90.4 / 88.3 | 84.7 / 81.7 / 78.8 |
 
 These percentages look high mainly because traffic flows freely most of the time, so the error in mph and the error during congestion are the more informative quantities. See the report for RMSE, MAPE, peak versus off-peak and validation scores.
+
+## Research foundation
+
+The project follows the hybrid logic of the brief (segment-level machine learning first, network-aware deep learning second) and builds on published work; the report maps each reference to its role in a literature table and the slides summarise it.
+
+| Work | Idea | Used here for |
+|---|---|---|
+| Li et al., ICLR 2018 (DCRNN) | traffic as diffusion on a directed graph with bidirectional random walks; 12 to 15% gain over its baselines | data, graph and protocol reference; model to reproduce next; motivates the upstream/downstream experiment |
+| Veličković et al., ICLR 2018 | graph attention over neighbours | the attention model named in the brief (next stage) |
+| Yu et al., IJCAI 2018; Wu et al., IJCAI 2019 | graph forecasting with convolutional structures; learned adjacency | graph baselines and ablations (next stage) |
+| Chen and Guestrin 2016; Breiman 2001; Hochreiter and Schmidhuber 1997; Hoerl and Kennard 1970 | XGBoost, Random Forest, LSTM, Ridge | the four learned baselines |
+| Kaufman et al. 2012; Hyndman and Koehler 2006 | data leakage; properties of accuracy measures | purge gap and leakage tests; how MAE, RMSE and MAPE are read |
+| Zhang et al., WWW 2019 (CityFlow) | reinforcement-learning signal simulator | optional, simulation-only signal control |
+
+Four hypotheses derived from this literature were tested and all were supported: (H1) error grows with the horizon, (H2) errors concentrate after congestion onsets, (H3) residuals correlate along road links, (H4) neighbour information helps, downstream more than upstream, but one-hop features do not close the gap (report, Section 8.1).
 
 ## Method in brief
 
@@ -97,6 +112,12 @@ make dashboard    # open the dashboard locally
 
 The deployed dashboard at [trafficflowamldl.streamlit.app](https://trafficflowamldl.streamlit.app) reads only the pre-computed files in `results/`. Intermediate data (about 2.5 GB per protocol) is not committed.
 
+## Documentation
+
+- **[Project report](docs/report/report.pdf)**: 22 pages with abstract, literature review, data, methodology, all results, the gap analysis, software and deployment, limitations and a bibliography. The LaTeX source is in `docs/report/`; every table and quoted number is generated from `results/` by `scripts/make_report_tables.py`, and `make report` rebuilds it.
+- **[Slides](docs/presentation/AML_Traffic_Flow_Forecasting.pptx)**: 13 slides covering the problem, research foundation, data, leak-free pipeline, baselines, all scores, the gap, conclusion and references.
+- **[Live dashboard](https://trafficflowamldl.streamlit.app)**: interactive view of the saved results (`app.py`, contributed by Sumit).
+
 ## Data
 
 METR-LA ([Jagadish et al., 2014](https://doi.org/10.1145/2611567)) as distributed with the [DCRNN](https://github.com/liyaguang/DCRNN#data-preparation) code: 34,272 five-minute speed readings from 207 sensors, 1 March to 27 June 2012, with a directed road-distance adjacency matrix. 8.1% of readings are sensor outages (0 mph), which are masked.
@@ -107,14 +128,21 @@ METR-LA records speed only, so flow and occupancy features need PeMS data. The d
 
 ## References
 
-The full bibliography is in [docs/report/references.bib](docs/report/references.bib). Key works:
+The full bibliography, with DOIs and arXiv identifiers, is in [docs/report/references.bib](docs/report/references.bib).
 
 1. Y. Li, R. Yu, C. Shahabi, Y. Liu. *Diffusion Convolutional Recurrent Neural Network: Data-Driven Traffic Forecasting.* ICLR 2018. [arXiv:1707.01926](https://arxiv.org/abs/1707.01926)
 2. P. Veličković, G. Cucurull, A. Casanova, A. Romero, P. Liò, Y. Bengio. *Graph Attention Networks.* ICLR 2018. [arXiv:1710.10903](https://arxiv.org/abs/1710.10903)
 3. B. Yu, H. Yin, Z. Zhu. *Spatio-Temporal Graph Convolutional Networks: A Deep Learning Framework for Traffic Forecasting.* IJCAI 2018. [arXiv:1709.04875](https://arxiv.org/abs/1709.04875)
 4. Z. Wu, S. Pan, G. Long, J. Jiang, C. Zhang. *Graph WaveNet for Deep Spatial-Temporal Graph Modeling.* IJCAI 2019. [arXiv:1906.00121](https://arxiv.org/abs/1906.00121)
 5. H. Zhang et al. *CityFlow: A Multi-Agent Reinforcement Learning Environment for Large Scale City Traffic Scenario.* WWW 2019. [arXiv:1905.05217](https://arxiv.org/abs/1905.05217)
-6. T. Chen, C. Guestrin. *XGBoost: A Scalable Tree Boosting System.* KDD 2016.
+6. T. Chen, C. Guestrin. *XGBoost: A Scalable Tree Boosting System.* KDD 2016. [doi:10.1145/2939672.2939785](https://doi.org/10.1145/2939672.2939785)
+7. L. Breiman. *Random Forests.* Machine Learning 45(1):5-32, 2001.
+8. S. Hochreiter, J. Schmidhuber. *Long Short-Term Memory.* Neural Computation 9(8):1735-1780, 1997.
+9. A. E. Hoerl, R. W. Kennard. *Ridge Regression: Biased Estimation for Nonorthogonal Problems.* Technometrics 12(1):55-67, 1970.
+10. D. P. Kingma, J. Ba. *Adam: A Method for Stochastic Optimization.* ICLR 2015. [arXiv:1412.6980](https://arxiv.org/abs/1412.6980)
+11. H. V. Jagadish et al. *Big Data and Its Technical Challenges.* Communications of the ACM 57(7):86-94, 2014. [doi:10.1145/2611567](https://doi.org/10.1145/2611567)
+12. S. Kaufman, S. Rosset, C. Perlich, O. Stitelman. *Leakage in Data Mining: Formulation, Detection, and Avoidance.* ACM TKDD 6(4), 2012.
+13. R. J. Hyndman, A. B. Koehler. *Another Look at Measures of Forecast Accuracy.* International Journal of Forecasting 22(4):679-688, 2006.
 
 ## Contributors
 
