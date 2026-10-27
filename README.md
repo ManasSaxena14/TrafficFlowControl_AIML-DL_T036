@@ -43,6 +43,25 @@ The gap (Phase 4): XGBoost's error is 5–6× higher in the 30 min after a conge
 
 *Graph models and the full comparison (peak vs off-peak, significance) follow in Phases 5–6.*
 
+## Model accuracy
+
+Speed forecasting is a regression task, so there is no single "accuracy" number. Two plain-language scores are reported on the **test block** (the last 24 days, never used for tuning), at 15 / 30 / 60 minutes ahead, over real sensor readings only ([results/accuracy.csv](results/accuracy.csv)):
+
+- **Percent accuracy = 100 minus MAPE**: how close forecasts are to the true speed, as a percentage.
+- **Within 5 mph**: the share of forecasts that land within 5 mph of the true speed.
+
+| Model | Percent accuracy (15 / 30 / 60 min) | Within 5 mph, % (15 / 30 / 60 min) |
+|---|---|---|
+| Persistence | 91.4 / 89.2 / 85.5 | 80.8 / 77.9 / 73.5 |
+| Historical average | 86.1 / 86.1 / 86.1 | 76.5 / 76.5 / 76.5 |
+| Ridge per sensor | 91.1 / 88.3 / 84.5 | 82.3 / 77.9 / 70.6 |
+| Random Forest | 91.7 / 89.4 / 86.5 | 84.1 / 80.6 / 75.9 |
+| LSTM (no graph) | 92.0 / 89.7 / 86.5 | 85.1 / 82.6 / 79.5 |
+| **XGBoost (best independent model)** | 91.8 / 89.9 / 88.0 | 84.3 / 81.4 / 78.6 |
+| **XGBoost + neighbours (both directions)** | 92.3 / 90.4 / 88.3 | 84.7 / 81.7 / 78.8 |
+
+**The best independent model, XGBoost, is about 92% accurate at 15 minutes, 90% at 30 and 88% at 60** (mean error 3.02, 3.51 and 4.01 mph), and 84% of its 15-minute forecasts are within 5 mph. Giving it its road neighbours' speeds raises this to 92.3% / 90.4% / 88.3%. The LSTM is the most often within 5 mph at 15 minutes (85.1%). Accuracy falls at rush hour; see the [report](docs/report/AML_Project_Report.pdf) for MAE, RMSE, peak versus off-peak and validation scores.
+
 ## Dashboard and slides
 - **Live dashboard: https://trafficflowamldl.streamlit.app** (interactive Streamlit app over the saved results; source in `app.py`, contributed by Sumit).
 - `make dashboard` runs the same dashboard locally.
