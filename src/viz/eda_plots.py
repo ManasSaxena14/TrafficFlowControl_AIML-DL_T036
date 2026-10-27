@@ -12,7 +12,7 @@ import pandas as pd
 from src.viz import style as S
 
 style = S
-FIG_DIR = Path(__file__).resolve().parents[2] / "reports" / "figures"
+FIG_DIR = Path(__file__).resolve().parents[2] / "docs" / "figures"
 
 
 def save(fig: plt.Figure, name: str) -> Path:

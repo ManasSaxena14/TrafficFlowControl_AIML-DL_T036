@@ -1,3 +1,4 @@
+# environment and tool caches
 .venv/
 __pycache__/
 *.pyc
@@ -5,14 +6,20 @@ __pycache__/
 .ruff_cache/
 .ipynb_checkpoints/
 .DS_Store
-# data is downloaded by scripts/download_data.sh, never committed
+
+# data is downloaded by scripts/download_data.sh and rebuilt by `make preprocess`, never committed
 data/raw/
 data/processed/
 ref/
-# training outputs
+
+# model checkpoints and run logs
 checkpoints/
-wandb/
-mlruns/
-# original playbook PDF stays local only
-docs/Playbook.pdf
 logs/
+
+# LaTeX build artefacts
+docs/report/*.aux
+docs/report/*.log
+docs/report/*.out
+docs/report/*.bbl
+docs/report/*.blg
+docs/report/*.toc

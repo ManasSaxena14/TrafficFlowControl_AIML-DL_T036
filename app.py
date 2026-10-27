@@ -109,8 +109,14 @@ section[data-testid="stSidebar"] {
     padding: 24px 0 8px 0; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 40px;
 }
 .stTabs [data-baseweb="tab-list"] { background: rgba(13,17,23,0.5); border-radius: 10px; padding: 4px; gap: 4px; }
-.stTabs [data-baseweb="tab"] { border-radius: 8px; color: #8b9ab5; font-weight: 500; font-size: 0.88rem; padding: 8px 18px; transition: all 0.2s; }
-.stTabs [aria-selected="true"] { background: linear-gradient(135deg, #2a78d6 0%, #1a5cb0 100%) !important; color: #ffffff !important; font-weight: 600 !important; }
+.stTabs [data-baseweb="tab"] {
+    border-radius: 8px; color: #8b9ab5; font-weight: 500; font-size: 0.88rem;
+    padding: 8px 18px; transition: all 0.2s;
+}
+.stTabs [aria-selected="true"] {
+    background: linear-gradient(135deg, #2a78d6 0%, #1a5cb0 100%) !important;
+    color: #ffffff !important; font-weight: 600 !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -625,7 +631,8 @@ elif page == "⚡ Spatial Gap Analysis":
                     hovertemplate="<b>XGB+neighbours (onset)</b><br>%{x} min: %{y:.2f} mph<extra></extra>",
                 ))
             apply_plotly_layout(fig_g2,
-                title=dict(text="Gap 2 · Errors are several times larger right after congestion starts", font=dict(size=12, color=INK), x=0),
+                title=dict(text="Gap 2 · Errors are several times larger right after congestion starts",
+                           font=dict(size=12, color=INK), x=0),
                 xaxis_title="Forecast Horizon (min)", yaxis_title="MAE (mph)", height=380,
             )
             st.plotly_chart(fig_g2, use_container_width=True)
