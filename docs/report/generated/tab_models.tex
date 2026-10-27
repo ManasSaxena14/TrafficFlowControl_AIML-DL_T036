@@ -1,0 +1,12 @@
+\begin{tabularx}{\textwidth}{@{}clX@{}}
+\toprule
+Rung & Model & Configuration \\
+\midrule
+0 & Persistence & Repeats the last (imputed) speed for all 12 horizons. \\
+1 & Historical average & Training mean per sensor, weekday-or-weekend and 5-minute slot. \\
+2 & Ridge per sensor & One linear model per sensor and horizon (207 $\times$ 12) on the 41 time-varying features, standardised per sensor. Penalty chosen from $\{1, 10, 100, 1000\}$ on validation: 1000 (validation MAE 3.859 to 3.858, so the choice barely matters). \\
+3 & XGBoost & One regressor per horizon trained on all sensors stacked, sensor id as a feature, masked targets given weight 0. Maximum depth searched at the 30-minute horizon: 10 gives 3.291, 8 gives 3.342, 6 gives 3.413 validation MAE; depth 10 chosen. Learning rate 0.05, row and column subsample 0.8, up to 600 rounds with early stopping (50) on validation; every 2nd window used. \\
+4 & Random Forest & One multi-output forest predicting all 12 horizons: 100 trees, depth 20, minimum leaf 10, 30\% bootstrap samples, 50\% of features per split. Trained on every 6th window keeping rows whose 12 targets are all observed (742\,613 rows); evaluated on every test row with the mask. \\
+5 & LSTM, no graph & Two LSTM layers of 64 units, dropout 0.1, one set of weights shared by all 207 sensors; input is each sensor's own $12 \times 7$ window, output 12 horizons. Masked MAE in mph, Adam (learning rate 0.002, halved on plateau), gradient clipping 5, at most 12 epochs. All 12 epochs were used; best validation MAE 3.208. \\
+\bottomrule
+\end{tabularx}

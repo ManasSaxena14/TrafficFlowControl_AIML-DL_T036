@@ -1,0 +1,12 @@
+\begin{tabular}{@{}lrrrrrrrrrr@{}}
+\toprule
+Model & MAE\,15 & MAE\,30 & MAE\,60 & RMSE\,15 & RMSE\,30 & RMSE\,60 & MAPE\,15 & MAPE\,30 & MAPE\,60 & Pooled \\
+\midrule
+Persistence & 3.22 & 3.82 & 4.79 & 6.02 & 7.52 & 9.59 & 7.8 & 9.8 & 13.0 & 3.85 \\
+Historical average & 4.74 & 4.74 & 4.73 & 8.75 & 8.75 & 8.73 & 14.5 & 14.4 & 14.4 & 4.74 \\
+Ridge per sensor & 3.11 & 3.85 & 4.91 & 5.58 & 6.83 & 8.26 & 8.4 & 11.0 & 14.6 & 3.86 \\
+Random Forest & 2.86 & 3.42 & 4.14 & 5.31 & 6.36 & 7.46 & 7.7 & 9.8 & 12.5 & 3.39 \\
+LSTM (no graph) & \textbf{2.73} & \textbf{3.23} & 3.89 & 5.49 & 6.77 & 8.22 & \textbf{7.3} & 9.4 & 12.1 & 3.21 \\
+XGBoost & 2.82 & 3.29 & \textbf{3.78} & \textbf{5.19} & \textbf{6.12} & \textbf{6.95} & 7.5 & \textbf{9.4} & \textbf{11.1} & 3.23 \\
+\bottomrule
+\end{tabular}

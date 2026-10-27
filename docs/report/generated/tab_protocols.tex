@@ -1,0 +1,10 @@
+\begin{tabular}{@{}lll@{}}
+\toprule
+ & Strict split (used) & Reference window split \\
+\midrule
+Split unit & timestamps, then windows & windows \\
+Last train target & 2012-05-23 07:05 & 2012-05-23 07:40 \\
+First validation target & 2012-05-23 07:10 & \textbf{2012-05-23 06:50} (earlier) \\
+Scaler mean / std (mph) & 58.58 / 12.82, outages excluded & 54.41 / 19.49, 0 mph included \\
+\bottomrule
+\end{tabular}
