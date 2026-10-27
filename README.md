@@ -1,33 +1,17 @@
-# Traffic Flow Prediction & Signal Control via Graph Attention Networks
+# Traffic Flow Prediction and Signal Control via Graph Attention Networks and Flow Models
 
-**Does a model that sees the road network forecast traffic better than strong per-sensor models? And where does the gain come from?**
-Speed forecasting 5–60 min ahead on METR-LA (207 Los Angeles freeway sensors), comparing per-segment XGBoost / Random Forest baselines with graph neural networks (STGAT, DCRNN) under a leak-free protocol, plus an optional **simulated** signal-control experiment in SUMO.
+[Live dashboard](https://trafficflowamldl.streamlit.app) · [Project report (PDF)](docs/report/report.pdf) · [Slides](docs/presentation/AML_Traffic_Flow_Forecasting.pptx)
 
-> Signal control in this project is **simulation only**. Nothing here controls real traffic.
+**Does a model that sees the road network forecast traffic better than strong per-sensor models, and where does the gain come from?**
+This project forecasts freeway speed 5 to 60 minutes ahead on METR-LA (207 Los Angeles sensors). It builds a leak-free preprocessing pipeline, six forecasting baselines, and four experiments that measure what independent per-sensor models miss. The graph deep-learning models that should close that gap (graph attention and diffusion networks) are the next stage and are not part of the results below. Signal control is simulation only; nothing here controls real traffic.
 
-![A jam reaches the downstream sensor first, then travels back upstream](reports/figures/fig05d_propagation_example.png)
+![A jam reaches the downstream sensor first, then travels back upstream](docs/figures/fig05d_propagation_example.png)
 
-*Phase 1 finding: congestion propagates **backwards** along LA freeways at ≈16 km/h. On strongly coupled links the downstream sensor slows first 4× more often than the upstream one. A per-sensor model can't see this coming; a graph model can.*
-
-## Status
-
-| Phase | | Status |
-|---|---|---|
-| 0 | Setup, repo, pre-reads | Done |
-| 1 | Data + EDA ([report](docs/phase_reports/PHASE_1_REPORT.md)) | Done |
-| 2 | Leak-free preprocessing ([report](docs/phase_reports/PHASE_2_REPORT.md)) | Done |
-| 3 | ML baselines ([report](docs/phase_reports/PHASE_3_REPORT.md)) | Done |
-| 4 | Identify the gap ([report](docs/phase_reports/PHASE_4_REPORT.md)) | Done |
-| 5 | Graph models (STGAT, DCRNN) + ablations | Next |
-| 6 | Fair comparison, horizon & peak metrics, significance | Not started |
-| 7 | Congestion maps | Not started |
-| 8 | Simulated signal control (SUMO, optional) | Not started |
-| 9 | Extensions & packaging | Not started |
-
-The full plan, with every requirement of the brief mapped to a phase, is in **[docs/PROJECT_GUIDE.md](docs/PROJECT_GUIDE.md)**.
+*Congestion propagates backwards along the freeway at about 16 km/h: the downstream sensor slows first. A model that sees only its own sensor's history cannot see this coming.*
 
 ## Results
-**AML part (Phases 3–4), test block, masked MAE in mph** ([baselines.csv](results/baselines.csv), [gap_results.csv](results/gap_results.csv)):
+
+Test block (the last 24 days, never used for tuning); masked MAE in mph, lower is better. Full tables: [results/baselines.csv](results/baselines.csv), [results/gap_results.csv](results/gap_results.csv).
 
 | Model | 15 min | 30 min | 60 min |
 |---|---|---|---|
@@ -37,18 +21,18 @@ The full plan, with every requirement of the brief mapped to a phase, is in **[d
 | Random Forest (multi-output) | 3.08 | 3.68 | 4.45 |
 | LSTM, no graph | 2.97 | 3.55 | 4.35 |
 | **XGBoost per horizon** (best independent model) | 3.02 | 3.51 | 4.01 |
-| XGBoost + neighbours (both directions) | **2.91** | **3.42** | **3.95** |
+| XGBoost + neighbour speeds (both directions) | **2.91** | **3.42** | **3.95** |
 
-The gap (Phase 4): XGBoost's error is 5–6× higher in the 30 min after a congestion onset, and its errors correlate only between road-linked sensors. Neighbour features help at every horizon, which is the case for a graph model.
+**What the experiments show**
+- XGBoost is the strongest independent model; its error grows steadily with the forecast horizon.
+- In the 30 minutes after a congestion onset its error is 5.9 to 6.4 times larger than at other times (3,911 onsets in the test period).
+- The errors of road-linked sensors are correlated (0.20 at 60 minutes for sensors one link apart) while those of unconnected sensors are not.
+- Adding hand-made neighbour speeds lowers error at every horizon (up to 3.5%), so the missing information is spatial, but one-hop features capture only part of it. That is the case for a graph model.
+- Weekday rush-hour error is 1.4 to 1.95 times off-peak error for every model.
 
-*Graph models and the full comparison (peak vs off-peak, significance) follow in Phases 5–6.*
+### Model accuracy
 
-## Model accuracy
-
-Speed forecasting is a regression task, so there is no single "accuracy" number. Two plain-language scores are reported on the **test block** (the last 24 days, never used for tuning), at 15 / 30 / 60 minutes ahead, over real sensor readings only ([results/accuracy.csv](results/accuracy.csv)):
-
-- **Percent accuracy = 100 minus MAPE**: how close forecasts are to the true speed, as a percentage.
-- **Within 5 mph**: the share of forecasts that land within 5 mph of the true speed.
+Speed forecasting is a regression task, so there is no single accuracy figure. Two plain-language scores on the test block ([results/accuracy.csv](results/accuracy.csv)): **percent accuracy** (100 minus MAPE) and the share of forecasts **within 5 mph** of the true speed.
 
 | Model | Percent accuracy (15 / 30 / 60 min) | Within 5 mph, % (15 / 30 / 60 min) |
 |---|---|---|
@@ -60,25 +44,78 @@ Speed forecasting is a regression task, so there is no single "accuracy" number.
 | **XGBoost (best independent model)** | 91.8 / 89.9 / 88.0 | 84.3 / 81.4 / 78.6 |
 | **XGBoost + neighbours (both directions)** | 92.3 / 90.4 / 88.3 | 84.7 / 81.7 / 78.8 |
 
-**The best independent model, XGBoost, is about 92% accurate at 15 minutes, 90% at 30 and 88% at 60** (mean error 3.02, 3.51 and 4.01 mph), and 84% of its 15-minute forecasts are within 5 mph. Giving it its road neighbours' speeds raises this to 92.3% / 90.4% / 88.3%. The LSTM is the most often within 5 mph at 15 minutes (85.1%). Accuracy falls at rush hour; see the [report](docs/report/AML_Project_Report.pdf) for MAE, RMSE, peak versus off-peak and validation scores.
+These percentages look high mainly because traffic flows freely most of the time, so the error in mph and the error during congestion are the more informative quantities. See the report for RMSE, MAPE, peak versus off-peak and validation scores.
 
-## Dashboard and slides
-- **Live dashboard: https://trafficflowamldl.streamlit.app** (interactive Streamlit app over the saved results; source in `app.py`, contributed by Sumit).
-- `make dashboard` runs the same dashboard locally.
-- [Full project report](docs/report/AML_Project_Report.pdf) (also as [Word](docs/report/AML_Project_Report.docx)): 19 pages covering data, method, all results and limitations; every number is generated from the files in `results/` by `scripts/report/` (see its Appendix C).
-- [Project slides](docs/presentation/AML_Traffic_Flow_Forecasting.pptx): 11-slide summary of the AML part (data, leak-free pipeline, baselines, all scores, the gap).
+## Method in brief
 
-## Reproduce
-```bash
-make setup      # Python 3.11 venv (uv) + pinned requirements; macOS also: brew install libomp
-make data       # DCRNN repo graph files + metr-la.h5 from its Google Drive link
-make eda        # re-executes notebooks/01_eda.ipynb → reports/figures/, results/phase1_findings.json
-make preprocess # Phase 2: data/processed/strict/{train,val,test}.npz + scaler.json + adj.npz
-make test lint
+- **Leak-free protocol.** Timestamps are split 70/10/20 into train, validation and test; windows whose targets straddle a boundary are purged, so no target is in two splits. The scaler is fitted on training data only, and a test proves that the reference window-level split lets train and validation targets overlap.
+- **Outages are masked, not treated as zero traffic.** Missing readings are NaN targets with an explicit mask; every loss and metric ignores them.
+- **Equal history for every model.** The last 12 steps (60 minutes) in, the next 12 steps (5 to 60 minutes) out.
+- **Six baselines, one evaluation path.** Persistence, historical average, Ridge per sensor, XGBoost per horizon, a multi-output Random Forest, and an LSTM with shared weights and no graph. Hyper-parameters are chosen on validation only.
+- **Gap experiments.** Error against horizon, error after congestion onsets, residual correlation along road links, and a neighbour-information test.
+
+## Repository structure
+
+```
+.
+├── app.py                  Streamlit dashboard over the saved results (deployed)
+├── Makefile                one command per stage (see below)
+├── configs/data/           split, window, masking and peak definitions
+├── src/
+│   ├── data/               loading, leak-free preprocessing, readers
+│   ├── features/           46-column per-sensor feature table
+│   ├── models/             simple baselines, XGBoost and Random Forest, LSTM
+│   ├── eval/               masked metrics, per-horizon and peak evaluation, accuracy
+│   ├── analysis/           exploratory analysis and gap analysis
+│   ├── train/              runners for the baselines and the gap experiments
+│   └── viz/                figures
+├── tests/                  automated tests (data, leakage, baselines, gap)
+├── results/                every result table (CSV and JSON)
+├── notebooks/              exploratory data analysis
+├── scripts/                data download; report table generator
+└── docs/
+    ├── report/             LaTeX report, bibliography, compiled PDF
+    ├── presentation/       slide deck
+    └── figures/            figures used by the report and README
 ```
 
+## Getting started
+
+```bash
+make setup        # Python 3.11 environment (uv) and pinned requirements; macOS: brew install libomp
+make data         # METR-LA and the sensor graph (graph files from the DCRNN repository)
+make eda          # exploratory analysis: figures and results/phase1_findings.json
+make preprocess   # leak-free windows -> data/processed/strict/
+make features     # per-sensor feature tables
+make baselines    # six baselines -> results/baselines*.csv
+make gap          # gap experiments -> results/gap*/
+make accuracy     # accuracy summaries -> results/accuracy.csv
+make report       # regenerate tables from results/ and compile docs/report/report.pdf (brew install tectonic)
+make test lint
+make dashboard    # open the dashboard locally
+```
+
+The deployed dashboard at [trafficflowamldl.streamlit.app](https://trafficflowamldl.streamlit.app) reads only the pre-computed files in `results/`. Intermediate data (about 2.5 GB per protocol) is not committed.
+
 ## Data
-METR-LA from [liyaguang/DCRNN](https://github.com/liyaguang/DCRNN#data-preparation): 34,272 five-minute speed readings × 207 sensors, Mar–Jun 2012, with a directed road-distance adjacency. 8.1% of readings are sensor outages (0 mph), which are masked and never treated as traffic.
+
+METR-LA ([Jagadish et al., 2014](https://doi.org/10.1145/2611567)) as distributed with the [DCRNN](https://github.com/liyaguang/DCRNN#data-preparation) code: 34,272 five-minute speed readings from 207 sensors, 1 March to 27 June 2012, with a directed road-distance adjacency matrix. 8.1% of readings are sensor outages (0 mph), which are masked.
 
 ## Limitations
-Speed-only data (flow/occupancy via PeMS is a Phase 9 extension); 2012 freeway data from one city; signal control is evaluated only in a synthetic SUMO network.
+
+METR-LA records speed only, so flow and occupancy features need PeMS data. The data are 2012 freeway readings from one city. Each model was trained once (seed 42) and no significance tests have been run, so small differences should not be over-interpreted. Graph deep-learning models have not been built yet and the reference DCRNN numbers have not been reproduced under this protocol.
+
+## References
+
+The full bibliography is in [docs/report/references.bib](docs/report/references.bib). Key works:
+
+1. Y. Li, R. Yu, C. Shahabi, Y. Liu. *Diffusion Convolutional Recurrent Neural Network: Data-Driven Traffic Forecasting.* ICLR 2018. [arXiv:1707.01926](https://arxiv.org/abs/1707.01926)
+2. P. Veličković, G. Cucurull, A. Casanova, A. Romero, P. Liò, Y. Bengio. *Graph Attention Networks.* ICLR 2018. [arXiv:1710.10903](https://arxiv.org/abs/1710.10903)
+3. B. Yu, H. Yin, Z. Zhu. *Spatio-Temporal Graph Convolutional Networks: A Deep Learning Framework for Traffic Forecasting.* IJCAI 2018. [arXiv:1709.04875](https://arxiv.org/abs/1709.04875)
+4. Z. Wu, S. Pan, G. Long, J. Jiang, C. Zhang. *Graph WaveNet for Deep Spatial-Temporal Graph Modeling.* IJCAI 2019. [arXiv:1906.00121](https://arxiv.org/abs/1906.00121)
+5. H. Zhang et al. *CityFlow: A Multi-Agent Reinforcement Learning Environment for Large Scale City Traffic Scenario.* WWW 2019. [arXiv:1905.05217](https://arxiv.org/abs/1905.05217)
+6. T. Chen, C. Guestrin. *XGBoost: A Scalable Tree Boosting System.* KDD 2016.
+
+## Contributors
+
+Manas Saxena (pipeline, baselines, gap analysis, report, slides), Harsh Raj (project setup, data loading and exploratory analysis), Sumit (Streamlit dashboard).
