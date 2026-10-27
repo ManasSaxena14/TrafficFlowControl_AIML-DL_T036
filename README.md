@@ -9,6 +9,8 @@ This project forecasts freeway speed 5 to 60 minutes ahead on METR-LA (207 Los A
 
 *Congestion propagates backwards along the freeway at about 16 km/h: the downstream sensor slows first. A model that sees only its own sensor's history cannot see this coming.*
 
+An [interactive map of the sensor graph](docs/figures/fig04_sensor_graph_map.html) is also included (open it in a browser).
+
 ## Results
 
 Test block (the last 24 days, never used for tuning); masked MAE in mph, lower is better. Full tables: [results/baselines.csv](results/baselines.csv), [results/gap_results.csv](results/gap_results.csv).
@@ -97,7 +99,7 @@ Four hypotheses derived from this literature were tested and all were supported:
 ## Getting started
 
 ```bash
-make setup        # Python 3.11 environment (uv) and pinned requirements; macOS: brew install libomp
+make setup        # Python 3.11 environment (uv) and requirements-pipeline.txt; macOS: brew install libomp
 make data         # METR-LA and the sensor graph (graph files from the DCRNN repository)
 make eda          # exploratory analysis: figures and results/phase1_findings.json
 make preprocess   # leak-free windows -> data/processed/strict/
@@ -110,7 +112,7 @@ make test lint
 make dashboard    # open the dashboard locally
 ```
 
-The deployed dashboard at [trafficflowamldl.streamlit.app](https://trafficflowamldl.streamlit.app) reads only the pre-computed files in `results/`. Intermediate data (about 2.5 GB per protocol) is not committed.
+The deployed dashboard at [trafficflowamldl.streamlit.app](https://trafficflowamldl.streamlit.app) reads only the pre-computed files in `results/` and installs only `requirements.txt` (the full pipeline environment is `requirements-pipeline.txt`). Intermediate data (about 2.5 GB per protocol) is not committed.
 
 ## Documentation
 

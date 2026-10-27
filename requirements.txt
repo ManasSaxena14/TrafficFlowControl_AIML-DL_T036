@@ -1,27 +1,6 @@
-folium==0.20.0
-h5py==3.16.0
-ipykernel==7.4.0
-joblib==1.6.0
-jupyter==1.1.1
-matplotlib==3.11.2
-nbconvert==7.17.1
-nbformat==5.11.1
-networkx==3.6.1
-numpy==2.4.6
-pandas==3.0.6
-plotly==7.1.0
-pytest==9.1.1
-pyyaml==6.0.3
-ruff==0.16.10
-scikit-learn==1.9.1
-scipy==1.17.1
-seaborn==0.13.2
-statsmodels==0.15.0
-tables==3.11.1
-torch==2.14.1
-torch-geometric==2.8.0.post1
-torchvision==0.29.1
-tqdm==4.70.1
-xgboost==3.2.0
-gdown>=5.2
-streamlit==1.66.1
+# Dashboard (app.py) -- this is the file Streamlit Community Cloud installs.
+# The full modelling pipeline needs requirements-pipeline.txt.
+streamlit>=1.40
+pandas>=2.2
+numpy>=1.26
+plotly>=5.20

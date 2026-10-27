@@ -3,7 +3,7 @@ PY := .venv/bin/python
 .PHONY: setup data eda preprocess features baselines gap accuracy report dashboard test lint all
 
 setup:            ## create the environment (Python 3.11 via uv) and install pinned requirements
-	uv venv --python 3.11 .venv && uv pip install --python $(PY) -r requirements.txt
+	uv venv --python 3.11 .venv && uv pip install --python $(PY) -r requirements-pipeline.txt
 	@echo "macOS: XGBoost also needs 'brew install libomp'; the report needs 'brew install tectonic'"
 
 data:             ## download METR-LA and the sensor graph into data/raw
