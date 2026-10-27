@@ -87,6 +87,7 @@ The graph deep-learning stage is future work and no result for it is claimed her
   \item A reproducible leak-free pipeline with \TestsTotal{} automated tests, including twelve leakage tests, and a demonstration that a commonly used window-level split lets train and validation targets overlap.
   \item Six baselines scored identically, with test and validation tables at every horizon, an accuracy summary, and a peak versus off-peak breakdown.
   \item Four gap experiments: error against horizon, error after congestion onsets, residual correlation along road links, and a neighbour-information test that bridges per-sensor and graph models.
+  \item A literature-grounded set of four hypotheses (Section~\ref{sec:hypotheses}), each tested and reported with its outcome (Section~\ref{sec:hypotheses-revisited}), and a map of the thirteen research references to their role in the project (Table~\ref{tab:litmap}).
   \item An open-source repository and a deployed interactive dashboard of all results.
 \end{itemize}
 
@@ -95,17 +96,43 @@ Section~\ref{sec:related} reviews related work, Section~\ref{sec:data} describes
 
 %=====================================================================
 \section{Background and related work}\label{sec:related}
-\paragraph{Classical and machine-learning forecasting.}
+This section reviews the research the project builds on; Table~\ref{tab:litmap} summarises how each reference is used.
+
+\subsection{Classical and machine-learning forecasting}
 Traffic speed has a strong daily and weekly rhythm, so the historical average per time slot is a standard reference.
 Linear models (here Ridge regression, \citealp{hoerl1970ridge}), tree ensembles (Random Forests, \citealp{breiman2001rf}; gradient-boosted trees as implemented in XGBoost, \citealp{chen2016xgboost}) and recurrent networks (LSTM, \citealp{hochreiter1997lstm}) can use lagged speeds and time features, but each treats a sensor as an independent series.
+The baseline set of the widely used DCRNN study contains HA, ARIMA with a Kalman filter, VAR, SVR, a feed-forward network and an FC-LSTM \citep{li2018dcrnn}; gradient-boosted and random-forest regressors are not among them, so they provide a stronger independent yardstick for graph models.
 
-\paragraph{Graph-based deep learning.}
+\subsection{Graph-based deep learning}
 \citet{yu2018stgcn} formulate traffic forecasting on graphs and build the model from fully convolutional structures instead of recurrent units.
 \citet{li2018dcrnn} model traffic as a diffusion process on a directed graph and introduce the Diffusion Convolutional Recurrent Neural Network (DCRNN), which captures spatial dependency with bidirectional random walks and temporal dependency with an encoder--decoder trained with scheduled sampling; on METR-LA and PEMS-BAY it improves on the compared baselines by 12\% to 15\%.
+The authors argue that the bidirectional walk lets the model capture influence from both upstream and downstream traffic, and report that the directed-graph model outperforms an undirected variant (GCRNN) on METR-LA (MAE 2.77, 3.15 and 3.60 against 2.80, 3.24 and 3.81 mph at 15, 30 and 60 minutes).
 \citet{wu2019graphwavenet} learn an adaptive dependency matrix through node embeddings and use stacked dilated one-dimensional convolutions in Graph WaveNet.
 Graph attention networks \citep{velickovic2018gat} learn which neighbours matter by attention and are the attention-based option named in the project brief.
 
-\paragraph{Published reference points.}
+\begin{table}[ht]
+\centering\small
+\begin{tabularx}{\textwidth}{@{}p{3.1cm}Xp{4.6cm}@{}}
+\toprule
+Reference & Contribution (as stated by the authors) & Role in this project \\
+\midrule
+\citet{li2018dcrnn} & Diffusion on a directed graph, bidirectional random walks, encoder--decoder with scheduled sampling & Data and graph source, protocol to compare with, model to reproduce next; motivates the upstream/downstream experiment \\
+\citet{velickovic2018gat} & Attention over graph neighbours & The attention model named in the brief (next phase) \\
+\citet{yu2018stgcn} & Traffic forecasting on graphs with fully convolutional structures & Alternative graph baseline \\
+\citet{wu2019graphwavenet} & Adaptive dependency matrix, dilated convolutions & Ablation: fixed versus learned adjacency \\
+\citet{chen2016xgboost}, \citet{breiman2001rf}, \citet{hochreiter1997lstm}, \citet{hoerl1970ridge} & Gradient boosting, random forests, LSTM, ridge regression & The four learned baselines \\
+\citet{kingma2015adam} & Adam optimiser & Training of the LSTM \\
+\citet{kaufman2012leakage} & Formulation and detection of leakage & Motivates the purge gap and the leakage tests \\
+\citet{hyndman2006measures} & Properties of forecast-accuracy measures & Choice and caveats of MAE, RMSE and MAPE \\
+\citet{jagadish2014bigdata} & Origin of the METR-LA data (as cited in \citealp{li2018dcrnn}) & Dataset \\
+\citet{zhang2019cityflow} & Reinforcement-learning simulator for traffic signals & Optional simulation-only signal control \\
+\bottomrule
+\end{tabularx}
+\caption{Research references and their role in this project.}
+\label{tab:litmap}
+\end{table}
+
+\subsection{Published reference points}
 Table~\ref{tab:published} lists the METR-LA results reported by \citet{li2018dcrnn} next to ours.
 They are shown for orientation only: the protocols differ (Section~\ref{sec:protocol}), so the numbers are not directly comparable, and reproducing the published DCRNN under our protocol is the first goal of the next phase.
 \begin{table}[ht]
@@ -115,15 +142,22 @@ They are shown for orientation only: the protocols differ (Section~\ref{sec:prot
 \label{tab:published}
 \end{table}
 
-\paragraph{Signal control and simulation.}
+\subsection{Signal control and simulation}
 The brief also names optional simulated signal control.
 Simulators such as CityFlow \citep{zhang2019cityflow} are built for reinforcement-learning research on signal plans. (The brief cites this work as ``Zheng et~al.''; the first author in the proceedings is Huichu Zhang.)
 Everything in this project concerning signal control is simulation only; no claim of live traffic control is made.
 
-\paragraph{Research gap addressed here.}
+\subsection{Research gap and hypotheses}\label{sec:hypotheses}
 Published graph models are usually compared with older or weaker baselines and under window-level splits.
 We therefore ask a narrower, testable question: with a leak-free protocol and strong per-sensor baselines, \emph{where} does an independent model fail, and how much of that is recoverable by giving it neighbour information?
-The answer defines the target and the evidence base for the graph models.
+Four hypotheses follow from the literature and from the propagation analysis of Section~\ref{sec:propagation}:
+\begin{description}[leftmargin=1.2cm,labelwidth=1cm]
+  \item[H1] The error of the best independent model grows with the forecast horizon, because the relevant information is not in the sensor's own history.
+  \item[H2] Its error is concentrated right after congestion onsets, where propagation matters most.
+  \item[H3] Residuals of road-linked sensors are correlated while those of unconnected sensors are not.
+  \item[H4] Giving the model neighbour information lowers its error, downstream neighbours more than upstream ones, but one-hop hand-made features do not remove the gap.
+\end{description}
+Section~\ref{sec:hypotheses-revisited} returns to them once the results are known.
 
 %=====================================================================
 \section{Data: METR-LA}\label{sec:data}
@@ -464,6 +498,27 @@ The deployed dashboard is available at \dashboard.
 
 %=====================================================================
 \section{Discussion and limitations}\label{sec:discussion}
+\subsection{Findings in the light of the literature}\label{sec:hypotheses-revisited}
+\begin{table}[ht]
+\centering\small
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+Hypothesis & Evidence in this report & Outcome \\
+\midrule
+H1 & XGBoost MAE rises from \xgbMAEFifteen{} to \xgbMAESixty{} mph from 15 to 60 minutes (Section~\ref{sec:gap}) & Supported \\
+H2 & Error after onsets is \OnsetRatioFifteen{} to \OnsetRatioThirty{} times the error at other times (Table~\ref{tab:onset}) & Supported \\
+H3 & Residual correlation \ResidLinkSixty{} for one link against about zero for unconnected sensors (Table~\ref{tab:resid}) & Supported \\
+H4 & Neighbour features lower MAE by up to \NbGainFifteen\%, downstream more than upstream; residual correlation of linked sensors barely changes (Table~\ref{tab:nb}) & Supported, and the gap remains \\
+\bottomrule
+\end{tabularx}
+\caption{The four hypotheses of Section~\ref{sec:hypotheses} and their outcome.}
+\end{table}
+The findings agree with the literature.
+\citet{li2018dcrnn} argue that a bidirectional walk on a directed graph captures both upstream and downstream influence and show a gain over an undirected variant; in our data only \TwoWayPct\% of links are two-way, and downstream neighbours help the independent model more than upstream ones, so the directed structure is informative and will be tested directly through a directed-versus-undirected ablation.
+Our independent baselines (historical average, Ridge, Random Forest, XGBoost, LSTM) are of a similar magnitude to the FC-LSTM and historical-average results published for METR-LA (Table~\ref{tab:published}), although the protocols differ, and the tree models give a stronger yardstick than the classical set used there.
+Finally, the overlap we measured between train and validation targets in the window-level reference split is an instance of the leakage described by \citet{kaufman2012leakage}, which is why the purge gap and twelve leakage tests are part of the pipeline.
+
+\subsection{Limitations}
 \paragraph{Speed only.}
 METR-LA has no flow or occupancy, so the brief's flow and occupancy features are not used; PeMS would supply them.
 \paragraph{One city, one season.}
